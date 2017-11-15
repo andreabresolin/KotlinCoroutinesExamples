@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">Kotlin Coroutines Examples</string>
+    <string name="retrieval_in_progress">Retrieving weather...</string>
+    <string name="retrieval_canceled">Canceled</string>
+    <string name="retrieval_result">The weather in %1$s is %2$s (%3$.2f\u00B0)</string>
+    <string name="average_temperature_dialog_title">Average temperature</string>
+    <string name="average_temperature_dialog_message">The average temperature is %.2f\u00B0</string>
+    <string name="retrieval_error_dialog_title">Error</string>
+    <string name="retrieval_error_dialog_message">Error while retrieving the weather</string>
+    <string name="retrieval_error_dialog_message_with_place">Error while retrieving the weather for %s.</string>
+    <string name="retrieval_error_dialog_message_with_retry">Error while retrieving the weather for %s.\n\nDo you want to retry?</string>
+    <string name="ok_dialog_button">OK</string>
+    <string name="retry_dialog_button">Retry</string>
+    <string name="cancel_dialog_button">Cancel</string>
+    <string name="get_current_weather_sequential_button">Get current weather (Sequential)</string>
+    <string name="get_current_weather_parallel_button">Get current weather (Parallel)</string>
+    <string name="get_current_weather_with_retry_button">Get current weather (with retry)</string>
+    <string name="get_average_temperature_button">Get average temperature</string>
+</resources>
