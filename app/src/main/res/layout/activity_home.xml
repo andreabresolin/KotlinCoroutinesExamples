@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    tools:context="andreabresolin.kotlincoroutinesexamples.home.view.HomeActivity">
+
+    <TextView
+        android:id="@+id/currentWeatherCity1Text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="The current weather is..."
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"/>
+
+    <TextView
+        android:id="@+id/currentWeatherCity2Text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        tools:text="The current weather is..."
+        app:layout_constraintTop_toBottomOf="@id/currentWeatherCity1Text"
+        app:layout_constraintLeft_toLeftOf="parent"/>
+
+    <TextView
+        android:id="@+id/currentWeatherCity3Text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        tools:text="The current weather is..."
+        app:layout_constraintTop_toBottomOf="@id/currentWeatherCity2Text"
+        app:layout_constraintLeft_toLeftOf="parent"/>
+
+    <Button
+        android:id="@+id/getCurrentWeatherSequentialButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:text="@string/get_current_weather_sequential_button"
+        app:layout_constraintTop_toBottomOf="@id/currentWeatherCity3Text"/>
+
+    <Button
+        android:id="@+id/getCurrentWeatherParallelButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/get_current_weather_parallel_button"
+        app:layout_constraintTop_toBottomOf="@id/getCurrentWeatherSequentialButton"/>
+
+    <Button
+        android:id="@+id/getCurrentWeatherWithRetryButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/get_current_weather_with_retry_button"
+        app:layout_constraintTop_toBottomOf="@id/getCurrentWeatherParallelButton"/>
+
+    <Button
+        android:id="@+id/getAverageTemperatureButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/get_average_temperature_button"
+        app:layout_constraintTop_toBottomOf="@id/getCurrentWeatherWithRetryButton"/>
+
+</android.support.constraint.ConstraintLayout>
