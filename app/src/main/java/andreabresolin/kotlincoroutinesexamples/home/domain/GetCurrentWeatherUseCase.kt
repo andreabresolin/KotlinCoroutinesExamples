@@ -30,7 +30,7 @@ class GetCurrentWeatherUseCase constructor(
 
     suspend fun execute(cityAndCountry: String): CityWeather {
         val weather: CurrentWeather? = asyncAwait {
-            delay(Random().nextInt(2000).toLong()) // Random delay used to simulate a slow network connection
+            delay(1000 + Random().nextInt(3000).toLong()) // Random delay used to simulate a slow network connection
             weatherRepository.getCurrentWeather(cityAndCountry)
         }
 

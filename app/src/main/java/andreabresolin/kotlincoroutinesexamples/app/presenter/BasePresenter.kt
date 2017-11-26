@@ -19,15 +19,84 @@ package andreabresolin.kotlincoroutinesexamples.app.presenter
 import andreabresolin.kotlincoroutinesexamples.app.utils.CoroutinesUtils.Companion.tryCatch
 import andreabresolin.kotlincoroutinesexamples.app.utils.CoroutinesUtils.Companion.tryCatchFinally
 import andreabresolin.kotlincoroutinesexamples.app.utils.CoroutinesUtils.Companion.tryFinally
+import android.arch.lifecycle.Lifecycle
+import android.arch.lifecycle.LifecycleObserver
+import android.arch.lifecycle.OnLifecycleEvent
+import android.arch.lifecycle.ViewModel
 import android.support.annotation.CallSuper
+import android.util.Log
 import kotlinx.coroutines.experimental.CoroutineScope
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
+import kotlin.coroutines.experimental.Continuation
+import kotlin.coroutines.experimental.suspendCoroutine
 
-open class BasePresenter {
+abstract class BasePresenter<ViewInterface>: ViewModel(), LifecycleObserver {
 
     private val asyncJobs: MutableList<Job> = mutableListOf()
+
+    private var viewInstance: ViewInterface? = null
+    private var viewLifecycle: Lifecycle? = null
+    private var viewContinuations: MutableList<Continuation<ViewInterface>> = mutableListOf()
+
+    @Synchronized
+    protected suspend fun view(): ViewInterface {
+        Log.d("BasePresenter", "view(): start")
+        viewInstance?.let {
+            Log.d("BasePresenter", "view(): checking viewLifecycle")
+            if (viewLifecycle?.currentState?.isAtLeast(Lifecycle.State.STARTED) == true) {
+                Log.d("BasePresenter", "view(): returning viewInstance")
+                return it
+            }
+        }
+
+        // TODO: replace the single viewContinuation field with a list of continuations to handle parallel executions
+        Log.d("BasePresenter", "view(): waiting for the view to be ready...")
+        // Wait until the view is ready to be used again
+        return suspendCoroutine { continuation -> viewContinuations.add(continuation) }
+    }
+
+    @Synchronized
+    fun attachView(view: ViewInterface, viewLifecycle: Lifecycle) {
+        viewInstance = view
+        this.viewLifecycle = viewLifecycle
+
+        onViewAttached(view)
+    }
+
+    open protected fun onViewAttached(view: ViewInterface) {
+        // Nothing to do here. This is an event handled by the subclasses.
+    }
+
+    @Synchronized
+    @OnLifecycleEvent(Lifecycle.Event.ON_START)
+    private fun onViewStarted() {
+        val view = viewInstance
+
+        if (view != null) {
+            val viewContinuationsIterator = viewContinuations.listIterator()
+
+            while (viewContinuationsIterator.hasNext()) {
+                val continuation = viewContinuationsIterator.next()
+
+                // The view was not ready when the presenter needed it earlier,
+                // but now it's ready again so the presenter can continue
+                // interacting with it.
+                Log.d("BasePresenter", "onViewStarted(): resuming viewContinuation")
+                viewContinuationsIterator.remove()
+                continuation.resume(view)
+            }
+        }
+    }
+
+    @Synchronized
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    private fun onViewDestroyed() {
+        Log.d("BasePresenter", "onViewDestroyed")
+        viewInstance = null
+        viewLifecycle = null
+    }
 
     @CallSuper
     @Synchronized

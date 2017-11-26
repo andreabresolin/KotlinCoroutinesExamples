@@ -17,9 +17,9 @@
 package andreabresolin.kotlincoroutinesexamples.home.view
 
 import andreabresolin.kotlincoroutinesexamples.R
-import andreabresolin.kotlincoroutinesexamples.app.App
-import andreabresolin.kotlincoroutinesexamples.home.di.HomeModule
+import andreabresolin.kotlincoroutinesexamples.home.di.HomeComponent
 import andreabresolin.kotlincoroutinesexamples.home.presenter.HomePresenter
+import andreabresolin.kotlincoroutinesexamples.home.presenter.HomePresenterImpl
 import andreabresolin.kotlincoroutinesexamples.home.view.HomeView.WeatherRetrievalErrorDialogResponse
 import android.content.DialogInterface
 import android.os.Bundle
@@ -27,22 +27,24 @@ import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_home.*
-import javax.inject.Inject
 import kotlin.coroutines.experimental.Continuation
 import kotlin.coroutines.experimental.suspendCoroutine
+import android.arch.lifecycle.ViewModelProviders
 
 class HomeActivity : AppCompatActivity(), HomeView {
 
-    @Inject
-    internal lateinit var presenter: HomePresenter
-
+    private lateinit var presenter: HomePresenter
     private lateinit var citiesTextViews: List<TextView>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
-        injectDependencies()
+        val presenterImpl: HomePresenterImpl = ViewModelProviders.of(this).get(HomePresenterImpl::class.java)
+        presenterImpl.attachView(this, lifecycle)
+        lifecycle.addObserver(presenterImpl)
+        presenter = presenterImpl
+
         setupListeners()
 
         citiesTextViews = listOf(
@@ -51,11 +53,8 @@ class HomeActivity : AppCompatActivity(), HomeView {
                 currentWeatherCity3Text)
     }
 
-    private fun injectDependencies() {
-        App.get()
-                .getAppComponent()
-                ?.plus(HomeModule(this))
-                ?.inject(this)
+    override fun injectDependencies(homeComponent: HomeComponent) {
+        homeComponent.inject(this)
     }
 
     private fun setupListeners() {
@@ -63,11 +62,6 @@ class HomeActivity : AppCompatActivity(), HomeView {
         getCurrentWeatherParallelButton.setOnClickListener { onGetCurrentWeatherParallelButtonClick() }
         getAverageTemperatureButton.setOnClickListener { onGetAverageTemperatureButtonClick() }
         getCurrentWeatherWithRetryButton.setOnClickListener { onGetCurrentWeatherWithRetryButtonClick() }
-    }
-
-    override fun onStop() {
-        presenter.cleanup()
-        super.onStop()
     }
 
     private fun onGetCurrentWeatherSequentialButtonClick() {

@@ -21,5 +21,4 @@ interface HomePresenter {
     fun getCurrentWeatherParallel()
     fun getCurrentWeatherForCityWithRetry()
     fun getAverageTemperatureInCities()
-    fun cleanup()
 }

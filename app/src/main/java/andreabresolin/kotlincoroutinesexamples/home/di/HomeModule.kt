@@ -16,40 +16,24 @@
 
 package andreabresolin.kotlincoroutinesexamples.home.di
 
-import andreabresolin.kotlincoroutinesexamples.app.di.scopes.PerActivity
+import andreabresolin.kotlincoroutinesexamples.app.di.scopes.PerPresenter
 import andreabresolin.kotlincoroutinesexamples.app.repository.WeatherRepository
 import andreabresolin.kotlincoroutinesexamples.home.domain.GetAverageTemperatureInCitiesUseCase
 import andreabresolin.kotlincoroutinesexamples.home.domain.GetCurrentWeatherUseCase
-import andreabresolin.kotlincoroutinesexamples.home.presenter.HomePresenter
-import andreabresolin.kotlincoroutinesexamples.home.presenter.HomePresenterImpl
-import andreabresolin.kotlincoroutinesexamples.home.view.HomeActivity
-import andreabresolin.kotlincoroutinesexamples.home.view.HomeView
 import dagger.Module
 import dagger.Provides
 
 @Module
-class HomeModule constructor(private val activity: HomeActivity) {
+class HomeModule constructor() {
 
     @Provides
-    @PerActivity
-    internal fun provideView() : HomeView {
-        return activity
-    }
-
-    @Provides
-    @PerActivity
-    internal fun providePresenter(presenter: HomePresenterImpl) : HomePresenter {
-        return presenter
-    }
-
-    @Provides
-    @PerActivity
+    @PerPresenter
     internal fun provideGetCurrentWeatherUseCase(weatherRepository: WeatherRepository) : GetCurrentWeatherUseCase {
         return GetCurrentWeatherUseCase(weatherRepository)
     }
 
     @Provides
-    @PerActivity
+    @PerPresenter
     internal fun provideGetAverageTemperatureInCitiesUseCase(weatherRepository: WeatherRepository) : GetAverageTemperatureInCitiesUseCase {
         return GetAverageTemperatureInCitiesUseCase(weatherRepository)
     }

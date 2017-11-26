@@ -16,11 +16,14 @@
 
 package andreabresolin.kotlincoroutinesexamples.home.view
 
+import andreabresolin.kotlincoroutinesexamples.home.di.HomeComponent
+
 interface HomeView {
     enum class WeatherRetrievalErrorDialogResponse {
         RETRY, CANCEL
     }
 
+    fun injectDependencies(homeComponent: HomeComponent)
     fun clearAllCities()
     fun displayInProgressForCity(cityIndex: Int)
     fun displayCanceledForCity(cityIndex: Int)
