@@ -51,7 +51,6 @@ abstract class BasePresenter<ViewInterface>: ViewModel(), LifecycleObserver {
             }
         }
 
-        // TODO: replace the single viewContinuation field with a list of continuations to handle parallel executions
         Log.d("BasePresenter", "view(): waiting for the view to be ready...")
         // Wait until the view is ready to be used again
         return suspendCoroutine { continuation -> viewContinuations.add(continuation) }
