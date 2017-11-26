@@ -41,7 +41,7 @@ data class Weather(
 )
 
 data class Rain(
-        @SerializedName("3h") val h: Int?
+        @SerializedName("3h") val h: Double?
 )
 
 data class Wind(
