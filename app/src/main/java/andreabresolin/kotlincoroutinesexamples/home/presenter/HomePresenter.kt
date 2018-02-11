@@ -1,5 +1,5 @@
 /*
- *  Copyright 2017 Andrea Bresolin
+ *  Copyright 2018 Andrea Bresolin
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,7 +16,11 @@
 
 package andreabresolin.kotlincoroutinesexamples.home.presenter
 
-interface HomePresenter {
+import andreabresolin.kotlincoroutinesexamples.app.model.CityWeather
+import andreabresolin.kotlincoroutinesexamples.app.presenter.BasePresenter
+
+interface HomePresenter<in ViewInterface> : BasePresenter<ViewInterface> {
+    fun getCitiesWeather(): MutableList<CityWeather>
     fun getCurrentWeatherSequential()
     fun getCurrentWeatherParallel()
     fun getCurrentWeatherForCityWithRetry()

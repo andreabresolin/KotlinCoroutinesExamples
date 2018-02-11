@@ -57,7 +57,7 @@ class HomePresenterImplTest {
             subject.getAverageTemperatureInCities()
 
             // Then
-            verify(mockView).clearAllCities()
+            verify(mockView).updateAllCities()
             verify(mockView).displayAverageTemperature(givenAverageTemperature)
         }
     }
@@ -74,8 +74,8 @@ class HomePresenterImplTest {
             subject.getCurrentWeatherForCityWithRetry()
 
             // Then
-            verify(mockView).clearAllCities()
-            verify(mockView).displayInProgressForCity(anyInt())
+            verify(mockView).updateAllCities()
+            verify(mockView).updateCity(anyInt())
             verify(mockView).displayWeatherForCity(
                     anyInt(),
                     eqString(givenCity.cityName),
@@ -97,8 +97,8 @@ class HomePresenterImplTest {
             subject.getCurrentWeatherForCityWithRetry()
 
             // Then
-            verify(mockView).clearAllCities()
-            verify(mockView).displayInProgressForCity(anyInt())
+            verify(mockView).updateAllCities()
+            verify(mockView).updateCity(anyInt())
             verify(mockView).displayWeatherRetrievalErrorDialogWithRetry(givenException.cityAndCountry)
             verify(mockView).displayCanceledForCity(ArgumentMatchers.anyInt())
         }

@@ -1,5 +1,5 @@
 /*
- *  Copyright 2017 Andrea Bresolin
+ *  Copyright 2018 Andrea Bresolin
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,7 +19,9 @@ package andreabresolin.kotlincoroutinesexamples.home.presenter
 import andreabresolin.kotlincoroutinesexamples.app.App
 import andreabresolin.kotlincoroutinesexamples.app.model.City
 import andreabresolin.kotlincoroutinesexamples.app.model.CityWeather
-import andreabresolin.kotlincoroutinesexamples.app.presenter.BasePresenter
+import andreabresolin.kotlincoroutinesexamples.app.model.LoadingCityWeather
+import andreabresolin.kotlincoroutinesexamples.app.model.UnknownCityWeather
+import andreabresolin.kotlincoroutinesexamples.app.presenter.BasePresenterImpl
 import andreabresolin.kotlincoroutinesexamples.home.di.HomeComponent
 import andreabresolin.kotlincoroutinesexamples.home.di.HomeModule
 import andreabresolin.kotlincoroutinesexamples.home.domain.GetAverageTemperatureInCitiesUseCase
@@ -31,7 +33,17 @@ import andreabresolin.kotlincoroutinesexamples.home.view.HomeView.WeatherRetriev
 import android.util.Log
 import javax.inject.Inject
 
-class HomePresenterImpl : BasePresenter<HomeView>(), HomePresenter {
+class HomePresenterImpl : BasePresenterImpl<HomeView>(), HomePresenter<HomeView> {
+
+    companion object {
+        private val CITIES: Array<City> = arrayOf(
+                City("London", "uk"),
+                City("Venice", "it"),
+                City("New York", "us"))
+    }
+
+    private val citiesWeather: MutableList<CityWeather> = mutableListOf()
+
     @Inject
     internal lateinit var getCurrentWeatherUseCase: GetCurrentWeatherUseCase
     @Inject
@@ -39,15 +51,9 @@ class HomePresenterImpl : BasePresenter<HomeView>(), HomePresenter {
 
     private var homeComponent: HomeComponent? = null
 
-    companion object {
-        private val CITIES: Array<City> = arrayOf(
-                City("London", "uk"),
-                City("Venezia", "it"),
-                City("New York", "us"))
-    }
-
     init {
         injectDependencies()
+        initCitiesWeather()
     }
 
     private fun injectDependencies() {
@@ -78,20 +84,40 @@ class HomePresenterImpl : BasePresenter<HomeView>(), HomePresenter {
         super.onCleared()
     }
 
-    private suspend fun getCurrentWeatherForCity(index: Int, city: City) {
-        Log.d("HomePresenterImpl", "getCurrentWeatherForCity($index)")
+    private fun initCitiesWeather() {
+        CITIES.forEach {
+            citiesWeather.add(UnknownCityWeather)
+        }
+    }
 
-        view().displayInProgressForCity(index)
-        val weather: CityWeather = getCurrentWeatherUseCase.execute(city.cityAndCountry)
-        view().displayWeatherForCity(index, city.cityName, weather.description, weather.temperature)
+    override fun getCitiesWeather(): MutableList<CityWeather> {
+        return citiesWeather
+    }
+
+    private suspend fun clearAllCitiesWeather() {
+        for (i in CITIES.indices) {
+            citiesWeather[i] = UnknownCityWeather
+        }
+
+        view().updateAllCities()
+    }
+
+    private suspend fun updateCityWeather(cityIndex: Int, cityWeather: CityWeather) {
+        citiesWeather[cityIndex] = cityWeather
+        view().updateCity(cityIndex)
+    }
+
+    private suspend fun getCurrentWeatherForCity(index: Int) {
+        updateCityWeather(index, LoadingCityWeather)
+        updateCityWeather(index, getCurrentWeatherUseCase.execute(CITIES[index].cityAndCountry))
     }
 
     override fun getCurrentWeatherSequential() {
         launchAsyncTryCatch({
-            view().clearAllCities()
+            clearAllCitiesWeather()
 
-            CITIES.forEachIndexed { index, city ->
-                getCurrentWeatherForCity(index, city)
+            for (i in CITIES.indices) {
+                getCurrentWeatherForCity(i)
             }
         }, {
             when (it) {
@@ -103,12 +129,12 @@ class HomePresenterImpl : BasePresenter<HomeView>(), HomePresenter {
 
     override fun getCurrentWeatherParallel() {
         launchAsync {
-            view().clearAllCities()
+            clearAllCitiesWeather()
         }
 
-        CITIES.forEachIndexed { index, city ->
+        for (i in CITIES.indices) {
             launchAsyncTryCatch({
-                getCurrentWeatherForCity(index, city)
+                getCurrentWeatherForCity(i)
             }, {
                 when (it) {
                     is GetCurrentWeatherException -> view().displayWeatherRetrievalErrorDialog(it.cityAndCountry)
@@ -120,22 +146,25 @@ class HomePresenterImpl : BasePresenter<HomeView>(), HomePresenter {
 
     override fun getCurrentWeatherForCityWithRetry() {
         launchAsync {
-            view().clearAllCities()
-            getCurrentWeatherForCityWithRetry(City("VeneziaWrong", "it"))
+            view().updateAllCities()
+            getCurrentWeatherForCityWithRetry(City("VeniceWrong", "it"))
         }
     }
 
     private fun getCurrentWeatherForCityWithRetry(city: City) {
         launchAsyncTryCatch ({
-            view().displayInProgressForCity(0)
-            val weather: CityWeather = getCurrentWeatherUseCase.execute(city.cityAndCountry)
-            view().displayWeatherForCity(0, city.cityName, weather.description, weather.temperature)
+            updateCityWeather(1, LoadingCityWeather)
+            updateCityWeather(1, getCurrentWeatherUseCase.execute(city.cityAndCountry))
         }, {
             when (it) {
                 is GetCurrentWeatherException -> {
+                    updateCityWeather(1, UnknownCityWeather)
+
                     when (view().displayWeatherRetrievalErrorDialogWithRetry(it.cityAndCountry)) {
-                        RETRY -> getCurrentWeatherForCityWithRetry(City("Venezia", "it"))
-                        CANCEL -> view().displayCanceledForCity(0)
+                        RETRY -> getCurrentWeatherForCityWithRetry(CITIES[1])
+                        CANCEL -> {
+                            updateCityWeather(1, UnknownCityWeather)
+                        }
                     }
                 }
                 else -> view().displayWeatherRetrievalGenericError()
@@ -145,7 +174,6 @@ class HomePresenterImpl : BasePresenter<HomeView>(), HomePresenter {
 
     override fun getAverageTemperatureInCities() {
         launchAsync {
-            view().clearAllCities()
             val citiesAndCountries: List<String> = CITIES.map { it.cityAndCountry }
             val averageTemperature: Double = getAverageTemperatureInCitiesUseCase.execute(citiesAndCountries)
             view().displayAverageTemperature(averageTemperature)

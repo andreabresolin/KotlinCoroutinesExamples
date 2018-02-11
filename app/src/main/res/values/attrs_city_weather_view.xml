@@ -1,0 +1,8 @@
+<resources>
+    <declare-styleable name="CityWeatherView">
+        <attr name="cityName" format="string" />
+        <attr name="temperature" format="string" />
+        <attr name="weatherIconUrl" format="string" />
+        <attr name="isLoading" format="boolean" />
+    </declare-styleable>
+</resources>

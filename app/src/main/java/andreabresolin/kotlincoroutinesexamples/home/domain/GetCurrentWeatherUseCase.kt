@@ -1,5 +1,5 @@
 /*
- *  Copyright 2017 Andrea Bresolin
+ *  Copyright 2018 Andrea Bresolin
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package andreabresolin.kotlincoroutinesexamples.home.domain
 
 import andreabresolin.kotlincoroutinesexamples.app.domain.BaseUseCase
 import andreabresolin.kotlincoroutinesexamples.app.model.CityWeather
+import andreabresolin.kotlincoroutinesexamples.app.model.LoadedCityWeather
 import andreabresolin.kotlincoroutinesexamples.app.network.model.CurrentWeather
 import andreabresolin.kotlincoroutinesexamples.app.repository.WeatherRepository
 import kotlinx.coroutines.experimental.delay
@@ -34,8 +35,10 @@ class GetCurrentWeatherUseCase constructor(
             weatherRepository.getCurrentWeather(cityAndCountry)
         }
 
-        return CityWeather(
-                weather?.weather?.get(0)?.description ?: throw GetCurrentWeatherException(cityAndCountry),
-                weather.main?.temp ?: throw GetCurrentWeatherException(cityAndCountry))
+        return LoadedCityWeather(
+                weather?.name ?: throw GetCurrentWeatherException(cityAndCountry),
+                weather.weather?.get(0)?.description ?: throw GetCurrentWeatherException(cityAndCountry),
+                weather.main?.temp ?: throw GetCurrentWeatherException(cityAndCountry),
+                weather.weather.get(0)?.icon)
     }
 }

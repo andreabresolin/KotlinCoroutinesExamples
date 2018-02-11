@@ -1,5 +1,5 @@
 /*
- *  Copyright 2017 Andrea Bresolin
+ *  Copyright 2018 Andrea Bresolin
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,40 +21,36 @@ import andreabresolin.kotlincoroutinesexamples.home.di.HomeComponent
 import andreabresolin.kotlincoroutinesexamples.home.presenter.HomePresenter
 import andreabresolin.kotlincoroutinesexamples.home.presenter.HomePresenterImpl
 import andreabresolin.kotlincoroutinesexamples.home.view.HomeView.WeatherRetrievalErrorDialogResponse
+import android.arch.lifecycle.ViewModelProviders
 import android.content.DialogInterface
 import android.os.Bundle
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
-import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlin.coroutines.experimental.Continuation
 import kotlin.coroutines.experimental.suspendCoroutine
-import android.arch.lifecycle.ViewModelProviders
 
 class HomeActivity : AppCompatActivity(), HomeView {
 
-    private lateinit var presenter: HomePresenter
-    private lateinit var citiesTextViews: List<TextView>
+    private lateinit var presenter: HomePresenter<HomeView>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
-        val presenterImpl: HomePresenterImpl = ViewModelProviders.of(this).get(HomePresenterImpl::class.java)
-        presenterImpl.attachView(this, lifecycle)
-        lifecycle.addObserver(presenterImpl)
-        presenter = presenterImpl
-
+        setupPresenter()
         setupListeners()
-
-        citiesTextViews = listOf(
-                currentWeatherCity1Text,
-                currentWeatherCity2Text,
-                currentWeatherCity3Text)
+        setupCitiesWeatherList()
     }
 
     override fun injectDependencies(homeComponent: HomeComponent) {
         homeComponent.inject(this)
+    }
+
+    private fun setupPresenter() {
+        presenter = ViewModelProviders.of(this).get(HomePresenterImpl::class.java)
+        presenter.attachView(this, lifecycle)
+        lifecycle.addObserver(presenter)
     }
 
     private fun setupListeners() {
@@ -62,6 +58,10 @@ class HomeActivity : AppCompatActivity(), HomeView {
         getCurrentWeatherParallelButton.setOnClickListener { onGetCurrentWeatherParallelButtonClick() }
         getAverageTemperatureButton.setOnClickListener { onGetAverageTemperatureButtonClick() }
         getCurrentWeatherWithRetryButton.setOnClickListener { onGetCurrentWeatherWithRetryButtonClick() }
+    }
+
+    private fun setupCitiesWeatherList() {
+        citiesWeatherList.adapter = CitiesWeatherListAdapter(this, presenter.getCitiesWeather())
     }
 
     private fun onGetCurrentWeatherSequentialButtonClick() {
@@ -80,20 +80,12 @@ class HomeActivity : AppCompatActivity(), HomeView {
         presenter.getCurrentWeatherForCityWithRetry()
     }
 
-    override fun clearAllCities() {
-        citiesTextViews.forEach { it.text = "" }
+    override fun updateAllCities() {
+        citiesWeatherList.adapter.notifyDataSetChanged()
     }
 
-    override fun displayInProgressForCity(cityIndex: Int) {
-        citiesTextViews[cityIndex].text = getString(R.string.retrieval_in_progress)
-    }
-
-    override fun displayCanceledForCity(cityIndex: Int) {
-        citiesTextViews[cityIndex].text = getString(R.string.retrieval_canceled)
-    }
-
-    override fun displayWeatherForCity(cityIndex: Int, cityName: String, description: String, temperature: Double) {
-        citiesTextViews[cityIndex].text = getString(R.string.retrieval_result, cityName, description, temperature)
+    override fun updateCity(cityIndex: Int) {
+        citiesWeatherList.adapter.notifyItemChanged(cityIndex)
     }
 
     override fun displayAverageTemperature(averageTemperature: Double) {
