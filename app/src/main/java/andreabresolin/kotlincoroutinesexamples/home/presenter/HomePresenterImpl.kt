@@ -31,7 +31,6 @@ import andreabresolin.kotlincoroutinesexamples.home.view.HomeView
 import andreabresolin.kotlincoroutinesexamples.home.view.HomeView.WeatherRetrievalErrorDialogResponse
 import andreabresolin.kotlincoroutinesexamples.home.view.HomeView.WeatherRetrievalErrorDialogResponse.CANCEL
 import andreabresolin.kotlincoroutinesexamples.home.view.HomeView.WeatherRetrievalErrorDialogResponse.RETRY
-import android.util.Log
 import javax.inject.Inject
 
 class HomePresenterImpl : BasePresenterImpl<HomeView>(), HomePresenter<HomeView> {
@@ -80,7 +79,6 @@ class HomePresenterImpl : BasePresenterImpl<HomeView>(), HomePresenter<HomeView>
     }
 
     override fun onCleared() {
-        Log.d("HomePresenterImpl", "onCleared()")
         cleanup()
         super.onCleared()
     }

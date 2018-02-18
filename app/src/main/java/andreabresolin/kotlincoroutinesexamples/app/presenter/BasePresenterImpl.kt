@@ -23,7 +23,6 @@ import android.arch.lifecycle.Lifecycle
 import android.arch.lifecycle.OnLifecycleEvent
 import android.arch.lifecycle.ViewModel
 import android.support.annotation.CallSuper
-import android.util.Log
 import kotlinx.coroutines.experimental.CoroutineScope
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.android.UI
@@ -42,16 +41,12 @@ abstract class BasePresenterImpl<View>: ViewModel(), BasePresenter<View> {
 
     @Synchronized
     protected suspend fun view(): View {
-        Log.d("BasePresenterImpl", "view(): start")
         viewInstance?.let {
-            Log.d("BasePresenterImpl", "view(): checking viewLifecycle")
             if (viewLifecycle?.currentState?.isAtLeast(Lifecycle.State.STARTED) == true) {
-                Log.d("BasePresenterImpl", "view(): returning viewInstance")
                 return it
             }
         }
 
-        Log.d("BasePresenterImpl", "view(): waiting for the view to be ready...")
         // Wait until the view is ready to be used again
         return suspendCoroutine { continuation -> viewContinuations.add(continuation) }
     }
@@ -82,7 +77,6 @@ abstract class BasePresenterImpl<View>: ViewModel(), BasePresenter<View> {
                 // The view was not ready when the presenter needed it earlier,
                 // but now it's ready again so the presenter can continue
                 // interacting with it.
-                Log.d("BasePresenterImpl", "onViewStarted(): resuming viewContinuation")
                 viewContinuationsIterator.remove()
                 continuation.resume(view)
             }
@@ -109,7 +103,6 @@ abstract class BasePresenterImpl<View>: ViewModel(), BasePresenter<View> {
     @Synchronized
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     private fun onViewDestroyed() {
-        Log.d("BasePresenterImpl", "onViewDestroyed")
         viewInstance = null
         viewLifecycle = null
     }
