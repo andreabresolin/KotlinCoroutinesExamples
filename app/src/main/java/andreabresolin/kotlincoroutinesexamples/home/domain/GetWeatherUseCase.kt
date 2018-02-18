@@ -24,10 +24,10 @@ import andreabresolin.kotlincoroutinesexamples.app.repository.WeatherRepository
 import kotlinx.coroutines.experimental.delay
 import java.util.*
 
-class GetCurrentWeatherUseCase constructor(
+class GetWeatherUseCase constructor(
         private val weatherRepository: WeatherRepository) : BaseUseCase() {
 
-    class GetCurrentWeatherException constructor(val cityAndCountry: String) : RuntimeException()
+    class GetWeatherException constructor(val cityAndCountry: String) : RuntimeException()
 
     suspend fun execute(cityAndCountry: String): CityWeather {
         val weather: CurrentWeather? = asyncAwait {
@@ -36,9 +36,9 @@ class GetCurrentWeatherUseCase constructor(
         }
 
         return LoadedCityWeather(
-                weather?.name ?: throw GetCurrentWeatherException(cityAndCountry),
-                weather.weather?.get(0)?.description ?: throw GetCurrentWeatherException(cityAndCountry),
-                weather.main?.temp ?: throw GetCurrentWeatherException(cityAndCountry),
+                weather?.name ?: throw GetWeatherException(cityAndCountry),
+                weather.weather?.get(0)?.description ?: throw GetWeatherException(cityAndCountry),
+                weather.main?.temp ?: throw GetWeatherException(cityAndCountry),
                 weather.weather.get(0)?.icon)
     }
 }

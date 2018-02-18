@@ -21,7 +21,7 @@ import andreabresolin.kotlincoroutinesexamples.app.presenter.StickyContinuation
 import andreabresolin.kotlincoroutinesexamples.home.di.HomeComponent
 import andreabresolin.kotlincoroutinesexamples.home.presenter.HomePresenter
 import andreabresolin.kotlincoroutinesexamples.home.presenter.HomePresenterImpl
-import andreabresolin.kotlincoroutinesexamples.home.view.HomeView.WeatherRetrievalErrorDialogResponse
+import andreabresolin.kotlincoroutinesexamples.home.view.HomeView.ErrorDialogResponse
 import android.arch.lifecycle.ViewModelProviders
 import android.content.DialogInterface
 import android.os.Bundle
@@ -64,11 +64,11 @@ class HomeActivity : AppCompatActivity(), HomeView {
     }
 
     private fun onGetCurrentWeatherSequentialButtonClick() {
-        presenter.getCurrentWeatherSequential()
+        presenter.getWeatherSequential()
     }
 
     private fun onGetCurrentWeatherParallelButtonClick() {
-        presenter.getCurrentWeatherParallel()
+        presenter.getWeatherParallel()
     }
 
     private fun onGetAverageTemperatureButtonClick() {
@@ -76,7 +76,7 @@ class HomeActivity : AppCompatActivity(), HomeView {
     }
 
     private fun onGetCurrentWeatherWithRetryButtonClick() {
-        presenter.getCurrentWeatherForCityWithRetry()
+        presenter.getWeatherWithRetry()
     }
 
     override fun updateAllCities() {
@@ -87,10 +87,10 @@ class HomeActivity : AppCompatActivity(), HomeView {
         citiesWeatherList.adapter.notifyItemChanged(cityIndex)
     }
 
-    override fun displayAverageTemperature(averageTemperature: Double) {
+    override fun displayAverageTemperature(temperature: Double) {
         AlertDialog.Builder(this)
                 .setTitle(R.string.average_temperature_dialog_title)
-                .setMessage(getString(R.string.average_temperature_dialog_message, averageTemperature))
+                .setMessage(getString(R.string.average_temperature_dialog_message, temperature))
                 .setPositiveButton(R.string.ok_dialog_button, {
                     dialogInterface: DialogInterface, _: Int ->
                     dialogInterface.dismiss()
@@ -99,7 +99,7 @@ class HomeActivity : AppCompatActivity(), HomeView {
                 .show()
     }
 
-    override fun displayWeatherRetrievalErrorDialog(place: String) {
+    override fun displayGetWeatherError(place: String) {
         AlertDialog.Builder(this)
                 .setTitle(R.string.retrieval_error_dialog_title)
                 .setMessage(getString(R.string.retrieval_error_dialog_message_with_place, place))
@@ -111,22 +111,22 @@ class HomeActivity : AppCompatActivity(), HomeView {
                 .show()
     }
 
-    override fun displayWeatherRetrievalErrorDialogWithRetry(
-            continuation: StickyContinuation<WeatherRetrievalErrorDialogResponse>,
+    override fun displayGetWeatherErrorWithRetry(
+            continuation: StickyContinuation<ErrorDialogResponse>,
             place: String) {
         AlertDialog.Builder(this)
                 .setTitle(R.string.retrieval_error_dialog_title)
                 .setMessage(getString(R.string.retrieval_error_dialog_message_with_retry, place))
                 .setPositiveButton(R.string.retry_dialog_button, { dialogInterface: DialogInterface, _: Int ->
                     dialogInterface.dismiss()
-                    continuation.resume(WeatherRetrievalErrorDialogResponse.RETRY)
+                    continuation.resume(ErrorDialogResponse.RETRY)
                 })
                 .setNegativeButton(R.string.cancel_dialog_button, { dialogInterface: DialogInterface, _: Int ->
                     dialogInterface.dismiss()
-                    continuation.resume(WeatherRetrievalErrorDialogResponse.CANCEL)
+                    continuation.resume(ErrorDialogResponse.CANCEL)
                 })
                 .setOnCancelListener {
-                    continuation.resume(WeatherRetrievalErrorDialogResponse.CANCEL)
+                    continuation.resume(ErrorDialogResponse.CANCEL)
                 }
                 .create()
                 .show()

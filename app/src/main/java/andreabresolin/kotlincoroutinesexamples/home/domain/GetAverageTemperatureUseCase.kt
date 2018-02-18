@@ -21,7 +21,7 @@ import andreabresolin.kotlincoroutinesexamples.app.network.model.CurrentWeather
 import andreabresolin.kotlincoroutinesexamples.app.repository.WeatherRepository
 import kotlinx.coroutines.experimental.Deferred
 
-class GetAverageTemperatureInCitiesUseCase constructor(
+class GetAverageTemperatureUseCase constructor(
         private val weatherRepository: WeatherRepository) : BaseUseCase() {
 
     suspend fun execute(cities: List<String>): Double {

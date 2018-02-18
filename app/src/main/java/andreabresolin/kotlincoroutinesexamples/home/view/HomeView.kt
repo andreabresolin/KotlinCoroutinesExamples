@@ -20,17 +20,17 @@ import andreabresolin.kotlincoroutinesexamples.app.presenter.StickyContinuation
 import andreabresolin.kotlincoroutinesexamples.home.di.HomeComponent
 
 interface HomeView {
-    enum class WeatherRetrievalErrorDialogResponse {
+    enum class ErrorDialogResponse {
         RETRY, CANCEL
     }
 
     fun injectDependencies(homeComponent: HomeComponent)
     fun updateAllCities()
     fun updateCity(cityIndex: Int)
-    fun displayAverageTemperature(averageTemperature: Double)
-    fun displayWeatherRetrievalErrorDialog(place: String)
-    fun displayWeatherRetrievalErrorDialogWithRetry(
-            continuation: StickyContinuation<WeatherRetrievalErrorDialogResponse>,
+    fun displayAverageTemperature(temperature: Double)
+    fun displayGetWeatherError(place: String)
+    fun displayGetWeatherErrorWithRetry(
+            continuation: StickyContinuation<ErrorDialogResponse>,
             place: String)
     fun displayWeatherRetrievalGenericError()
 }

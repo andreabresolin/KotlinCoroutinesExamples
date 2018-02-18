@@ -18,10 +18,10 @@ package andreabresolin.kotlincoroutinesexamples.home.presenter
 
 import andreabresolin.kotlincoroutinesexamples.app.model.City
 import andreabresolin.kotlincoroutinesexamples.app.model.CityWeather
-import andreabresolin.kotlincoroutinesexamples.home.domain.GetAverageTemperatureInCitiesUseCase
-import andreabresolin.kotlincoroutinesexamples.home.domain.GetCurrentWeatherUseCase
+import andreabresolin.kotlincoroutinesexamples.home.domain.GetAverageTemperatureUseCase
+import andreabresolin.kotlincoroutinesexamples.home.domain.GetWeatherUseCase
 import andreabresolin.kotlincoroutinesexamples.home.view.HomeView
-import andreabresolin.kotlincoroutinesexamples.home.view.HomeView.WeatherRetrievalErrorDialogResponse.CANCEL
+import andreabresolin.kotlincoroutinesexamples.home.view.HomeView.ErrorDialogResponse.CANCEL
 import andreabresolin.kotlincoroutinesexamples.testutils.KotlinTestsUtils.Companion.eqString
 import andreabresolin.kotlincoroutinesexamples.testutils.KotlinTestsUtils.Companion.whenever
 import kotlinx.coroutines.experimental.runBlocking
@@ -39,9 +39,9 @@ class HomePresenterImplTest {
     @Mock
     private lateinit var mockView: HomeView
     @Mock
-    private lateinit var mockGetCurrentWeatherUseCase: GetCurrentWeatherUseCase
+    private lateinit var mockGetWeatherUseCase: GetWeatherUseCase
     @Mock
-    private lateinit var mockGetAverageTemperatureInCitiesUseCase: GetAverageTemperatureInCitiesUseCase;
+    private lateinit var mockGetAverageTemperatureUseCase: GetAverageTemperatureUseCase;
 
     @InjectMocks
     private lateinit var subject: HomePresenterImpl
@@ -51,7 +51,7 @@ class HomePresenterImplTest {
         runBlocking {
             // Given
             val givenAverageTemperature = 21.5
-            whenever(mockGetAverageTemperatureInCitiesUseCase.execute(anyList())).thenReturn(givenAverageTemperature)
+            whenever(mockGetAverageTemperatureUseCase.execute(anyList())).thenReturn(givenAverageTemperature)
 
             // When
             subject.getAverageTemperatureInCities()
@@ -68,10 +68,10 @@ class HomePresenterImplTest {
             // Given
             val givenCity = City("VeneziaWrong", "it")
             val givenWeather = CityWeather("sunny", 22.5)
-            whenever(mockGetCurrentWeatherUseCase.execute(givenCity.cityAndCountry)).thenReturn(givenWeather)
+            whenever(mockGetWeatherUseCase.execute(givenCity.cityAndCountry)).thenReturn(givenWeather)
 
             // When
-            subject.getCurrentWeatherForCityWithRetry()
+            subject.getWeatherWithRetry()
 
             // Then
             verify(mockView).updateAllCities()
@@ -89,17 +89,17 @@ class HomePresenterImplTest {
         runBlocking {
             // Given
             val givenCity = City("VeneziaWrong", "it")
-            val givenException = GetCurrentWeatherUseCase.GetCurrentWeatherException(givenCity.cityAndCountry)
-            whenever(mockGetCurrentWeatherUseCase.execute(givenCity.cityAndCountry)).thenThrow(givenException)
-            whenever(mockView.displayWeatherRetrievalErrorDialogWithRetry(givenException.cityAndCountry)).thenReturn(CANCEL)
+            val givenException = GetWeatherUseCase.GetWeatherException(givenCity.cityAndCountry)
+            whenever(mockGetWeatherUseCase.execute(givenCity.cityAndCountry)).thenThrow(givenException)
+            whenever(mockView.displayGetWeatherErrorWithRetry(givenException.cityAndCountry)).thenReturn(CANCEL)
 
             // When
-            subject.getCurrentWeatherForCityWithRetry()
+            subject.getWeatherWithRetry()
 
             // Then
             verify(mockView).updateAllCities()
             verify(mockView).updateCity(anyInt())
-            verify(mockView).displayWeatherRetrievalErrorDialogWithRetry(givenException.cityAndCountry)
+            verify(mockView).displayGetWeatherErrorWithRetry(givenException.cityAndCountry)
             verify(mockView).displayCanceledForCity(ArgumentMatchers.anyInt())
         }
     }

@@ -21,8 +21,8 @@ import andreabresolin.kotlincoroutinesexamples.app.presenter.BasePresenter
 
 interface HomePresenter<ViewInterface> : BasePresenter<ViewInterface> {
     fun getCitiesWeather(): MutableList<CityWeather>
-    fun getCurrentWeatherSequential()
-    fun getCurrentWeatherParallel()
-    fun getCurrentWeatherForCityWithRetry()
+    fun getWeatherSequential()
+    fun getWeatherParallel()
+    fun getWeatherWithRetry()
     fun getAverageTemperatureInCities()
 }

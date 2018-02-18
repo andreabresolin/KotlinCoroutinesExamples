@@ -31,16 +31,16 @@ import org.mockito.Mockito.verify
 import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
-class GetCurrentWeatherUseCaseTest {
+class GetWeatherUseCaseTest {
 
     @Mock
     private lateinit var mockWeatherRepository: WeatherRepository
 
-    private lateinit var subject: GetCurrentWeatherUseCase
+    private lateinit var subject: GetWeatherUseCase
 
     @Before
     fun before() {
-        subject = GetCurrentWeatherUseCase(mockWeatherRepository)
+        subject = GetWeatherUseCase(mockWeatherRepository)
     }
 
     @Test

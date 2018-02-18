@@ -24,13 +24,13 @@ import andreabresolin.kotlincoroutinesexamples.app.model.UnknownCityWeather
 import andreabresolin.kotlincoroutinesexamples.app.presenter.BasePresenterImpl
 import andreabresolin.kotlincoroutinesexamples.home.di.HomeComponent
 import andreabresolin.kotlincoroutinesexamples.home.di.HomeModule
-import andreabresolin.kotlincoroutinesexamples.home.domain.GetAverageTemperatureInCitiesUseCase
-import andreabresolin.kotlincoroutinesexamples.home.domain.GetCurrentWeatherUseCase
-import andreabresolin.kotlincoroutinesexamples.home.domain.GetCurrentWeatherUseCase.GetCurrentWeatherException
+import andreabresolin.kotlincoroutinesexamples.home.domain.GetAverageTemperatureUseCase
+import andreabresolin.kotlincoroutinesexamples.home.domain.GetWeatherUseCase
+import andreabresolin.kotlincoroutinesexamples.home.domain.GetWeatherUseCase.GetWeatherException
 import andreabresolin.kotlincoroutinesexamples.home.view.HomeView
-import andreabresolin.kotlincoroutinesexamples.home.view.HomeView.WeatherRetrievalErrorDialogResponse
-import andreabresolin.kotlincoroutinesexamples.home.view.HomeView.WeatherRetrievalErrorDialogResponse.CANCEL
-import andreabresolin.kotlincoroutinesexamples.home.view.HomeView.WeatherRetrievalErrorDialogResponse.RETRY
+import andreabresolin.kotlincoroutinesexamples.home.view.HomeView.ErrorDialogResponse
+import andreabresolin.kotlincoroutinesexamples.home.view.HomeView.ErrorDialogResponse.CANCEL
+import andreabresolin.kotlincoroutinesexamples.home.view.HomeView.ErrorDialogResponse.RETRY
 import javax.inject.Inject
 
 class HomePresenterImpl : BasePresenterImpl<HomeView>(), HomePresenter<HomeView> {
@@ -45,9 +45,9 @@ class HomePresenterImpl : BasePresenterImpl<HomeView>(), HomePresenter<HomeView>
     private val citiesWeather: MutableList<CityWeather> = mutableListOf()
 
     @Inject
-    internal lateinit var getCurrentWeatherUseCase: GetCurrentWeatherUseCase
+    internal lateinit var getWeatherUseCase: GetWeatherUseCase
     @Inject
-    internal lateinit var getAverageTemperatureInCitiesUseCase: GetAverageTemperatureInCitiesUseCase
+    internal lateinit var getAverageTemperatureUseCase: GetAverageTemperatureUseCase
 
     private var homeComponent: HomeComponent? = null
 
@@ -73,8 +73,8 @@ class HomePresenterImpl : BasePresenterImpl<HomeView>(), HomePresenter<HomeView>
     }
 
     override fun cleanup() {
-        getCurrentWeatherUseCase.cleanup()
-        getAverageTemperatureInCitiesUseCase.cleanup()
+        getWeatherUseCase.cleanup()
+        getAverageTemperatureUseCase.cleanup()
         super.cleanup()
     }
 
@@ -101,44 +101,44 @@ class HomePresenterImpl : BasePresenterImpl<HomeView>(), HomePresenter<HomeView>
         view().updateCity(cityIndex)
     }
 
-    private suspend fun getCurrentWeatherForCity(index: Int) {
+    private suspend fun getWeatherForCity(index: Int) {
         updateCityWeather(index, LoadingCityWeather)
-        updateCityWeather(index, getCurrentWeatherUseCase.execute(CITIES[index].cityAndCountry))
+        updateCityWeather(index, getWeatherUseCase.execute(CITIES[index].cityAndCountry))
     }
 
-    override fun getCurrentWeatherSequential() {
+    override fun getWeatherSequential() {
         launchAsyncTryCatch({
             clearAllCitiesWeather()
 
             for (i in CITIES.indices) {
-                getCurrentWeatherForCity(i)
+                getWeatherForCity(i)
             }
         }, {
             when (it) {
-                is GetCurrentWeatherException -> view().displayWeatherRetrievalErrorDialog(it.cityAndCountry)
+                is GetWeatherException -> view().displayGetWeatherError(it.cityAndCountry)
                 else -> view().displayWeatherRetrievalGenericError()
             }
         })
     }
 
-    override fun getCurrentWeatherParallel() {
+    override fun getWeatherParallel() {
         launchAsync {
             clearAllCitiesWeather()
         }
 
         for (i in CITIES.indices) {
             launchAsyncTryCatch({
-                getCurrentWeatherForCity(i)
+                getWeatherForCity(i)
             }, {
                 when (it) {
-                    is GetCurrentWeatherException -> view().displayWeatherRetrievalErrorDialog(it.cityAndCountry)
+                    is GetWeatherException -> view().displayGetWeatherError(it.cityAndCountry)
                     else -> view().displayWeatherRetrievalGenericError()
                 }
             })
         }
     }
 
-    override fun getCurrentWeatherForCityWithRetry() {
+    override fun getWeatherWithRetry() {
         launchAsync {
             view().updateAllCities()
             getCurrentWeatherForCityWithRetry(City("VeniceWrong", "it"))
@@ -148,14 +148,14 @@ class HomePresenterImpl : BasePresenterImpl<HomeView>(), HomePresenter<HomeView>
     private fun getCurrentWeatherForCityWithRetry(city: City) {
         launchAsyncTryCatch ({
             updateCityWeather(1, LoadingCityWeather)
-            updateCityWeather(1, getCurrentWeatherUseCase.execute(city.cityAndCountry))
+            updateCityWeather(1, getWeatherUseCase.execute(city.cityAndCountry))
         }, {
             val error = it
             when (error) {
-                is GetCurrentWeatherException -> {
+                is GetWeatherException -> {
                     updateCityWeather(1, UnknownCityWeather)
 
-                    when (view().stickySuspension<WeatherRetrievalErrorDialogResponse> { displayWeatherRetrievalErrorDialogWithRetry(it, error.cityAndCountry) }) {
+                    when (view().stickySuspension<ErrorDialogResponse> { displayGetWeatherErrorWithRetry(it, error.cityAndCountry) }) {
                         RETRY -> getCurrentWeatherForCityWithRetry(CITIES[1])
                         CANCEL -> {
                             updateCityWeather(1, UnknownCityWeather)
@@ -170,7 +170,7 @@ class HomePresenterImpl : BasePresenterImpl<HomeView>(), HomePresenter<HomeView>
     override fun getAverageTemperatureInCities() {
         launchAsync {
             val citiesAndCountries: List<String> = CITIES.map { it.cityAndCountry }
-            val averageTemperature: Double = getAverageTemperatureInCitiesUseCase.execute(citiesAndCountries)
+            val averageTemperature: Double = getAverageTemperatureUseCase.execute(citiesAndCountries)
             view().displayAverageTemperature(averageTemperature)
         }
     }
