@@ -78,11 +78,6 @@ class HomePresenterImpl : BasePresenterImpl<HomeView>(), HomePresenter<HomeView>
         super.cleanup()
     }
 
-    override fun onCleared() {
-        cleanup()
-        super.onCleared()
-    }
-
     private fun initCitiesWeather() {
         CITIES.forEach {
             citiesWeather.add(UnknownCityWeather)

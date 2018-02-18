@@ -107,6 +107,11 @@ abstract class BasePresenterImpl<View>: ViewModel(), BasePresenter<View> {
         viewLifecycle = null
     }
 
+    override fun onCleared() {
+        cleanup()
+        super.onCleared()
+    }
+
     @Synchronized
     override fun addStickyContinuation(continuation: StickyContinuation<*>,
                                        block: View.(StickyContinuation<*>) -> Unit) {
