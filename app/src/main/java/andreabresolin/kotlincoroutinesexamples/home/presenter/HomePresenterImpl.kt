@@ -42,13 +42,12 @@ class HomePresenterImpl : BasePresenterImpl<HomeView>(), HomePresenter<HomeView>
                 City("New York", "us"))
     }
 
-    private val citiesWeather: MutableList<CityWeather> = mutableListOf()
-
     @Inject
     internal lateinit var getWeatherUseCase: GetWeatherUseCase
     @Inject
     internal lateinit var getAverageTemperatureUseCase: GetAverageTemperatureUseCase
 
+    private val citiesWeather: MutableList<CityWeather> = mutableListOf()
     private var homeComponent: HomeComponent? = null
 
     init {
@@ -66,9 +65,7 @@ class HomePresenterImpl : BasePresenterImpl<HomeView>(), HomePresenter<HomeView>
 
     override fun onViewAttached(view: HomeView) {
         homeComponent?.let {
-            launchAsync {
-                view().injectDependencies(it)
-            }
+            launchAsync { view().injectDependencies(it) }
         }
     }
 
