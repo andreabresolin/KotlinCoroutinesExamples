@@ -54,7 +54,7 @@ class HomePresenterImplTest {
             whenever(mockGetAverageTemperatureUseCase.execute(anyList())).thenReturn(givenAverageTemperature)
 
             // When
-            subject.getAverageTemperatureInCities()
+            subject.getAverageTemperature()
 
             // Then
             verify(mockView).updateAllCities()

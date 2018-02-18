@@ -55,12 +55,13 @@ class HomeActivity : AppCompatActivity(), HomeView {
     private fun setupListeners() {
         getWeatherSequentialButton.setOnClickListener { presenter.getWeatherSequential() }
         getWeatherParallelButton.setOnClickListener { presenter.getWeatherParallel() }
-        getAverageTemperatureButton.setOnClickListener { presenter.getAverageTemperatureInCities() }
+        getWeatherIndependentButton.setOnClickListener { presenter.getWeatherIndependent() }
+        getAverageTemperatureButton.setOnClickListener { presenter.getAverageTemperature() }
         getWeatherWithRetryButton.setOnClickListener { presenter.getWeatherWithRetry() }
     }
 
     private fun setupCitiesWeatherList() {
-        citiesWeatherList.adapter = CitiesWeatherListAdapter(this, presenter.getCitiesWeather())
+        citiesWeatherList.adapter = CitiesWeatherListAdapter(this, presenter.weather)
     }
 
     override fun updateAllCities() {

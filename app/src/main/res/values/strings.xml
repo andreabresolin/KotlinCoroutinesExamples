@@ -13,8 +13,9 @@
     <string name="ok_dialog_button">OK</string>
     <string name="retry_dialog_button">Retry</string>
     <string name="cancel_dialog_button">Cancel</string>
-    <string name="get_current_weather_sequential_button">CW(S)</string>
-    <string name="get_current_weather_parallel_button">CW(P)</string>
-    <string name="get_current_weather_with_retry_button">CW(R)</string>
+    <string name="get_current_weather_sequential_button">W(S)</string>
+    <string name="get_current_weather_parallel_button">W(P)</string>
+    <string name="get_current_weather_independent_button">W(I)</string>
+    <string name="get_current_weather_with_retry_button">W(R)</string>
     <string name="get_average_temperature_button">AVGT</string>
 </resources>

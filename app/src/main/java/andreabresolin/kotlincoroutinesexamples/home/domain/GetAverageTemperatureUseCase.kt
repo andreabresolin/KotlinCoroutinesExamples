@@ -24,15 +24,15 @@ import kotlinx.coroutines.experimental.Deferred
 class GetAverageTemperatureUseCase constructor(
         private val weatherRepository: WeatherRepository) : BaseUseCase() {
 
-    suspend fun execute(cities: List<String>): Double {
-        return cities
+    suspend fun execute(citiesAndCountries: List<String>): Double {
+        return citiesAndCountries
                 .map { getCityWeather(it) }
                 .map { getCityTemperature(it.await()) }
                 .average()
     }
 
-    private suspend fun getCityWeather(city: String): Deferred<CurrentWeather?> {
-        return async { weatherRepository.getCurrentWeather(city) }
+    private suspend fun getCityWeather(cityAndCountry: String): Deferred<CurrentWeather?> {
+        return async { weatherRepository.getCurrentWeather(cityAndCountry) }
     }
 
     private fun getCityTemperature(weather: CurrentWeather?): Double {
