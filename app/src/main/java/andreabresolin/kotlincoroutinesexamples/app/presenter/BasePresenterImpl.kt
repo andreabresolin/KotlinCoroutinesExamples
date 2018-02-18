@@ -38,6 +38,7 @@ abstract class BasePresenterImpl<View>: ViewModel(), BasePresenter<View> {
     private var viewLifecycle: Lifecycle? = null
     private val viewContinuations: MutableList<Continuation<View>> = mutableListOf()
     private val stickyContinuations: MutableMap<StickyContinuation<*>, View.(StickyContinuation<*>) -> Unit> = mutableMapOf()
+    private var mustRestoreStickyContinuations: Boolean = false
 
     @Synchronized
     protected suspend fun view(): View {
@@ -88,7 +89,9 @@ abstract class BasePresenterImpl<View>: ViewModel(), BasePresenter<View> {
     private fun onViewResumed() {
         val view = viewInstance
 
-        if (view != null) {
+        if (mustRestoreStickyContinuations && view != null) {
+            mustRestoreStickyContinuations = false
+
             val stickyContinuationsIterator = stickyContinuations.iterator()
 
             while (stickyContinuationsIterator.hasNext()) {
@@ -105,6 +108,7 @@ abstract class BasePresenterImpl<View>: ViewModel(), BasePresenter<View> {
     private fun onViewDestroyed() {
         viewInstance = null
         viewLifecycle = null
+        mustRestoreStickyContinuations = true
     }
 
     override fun onCleared() {
