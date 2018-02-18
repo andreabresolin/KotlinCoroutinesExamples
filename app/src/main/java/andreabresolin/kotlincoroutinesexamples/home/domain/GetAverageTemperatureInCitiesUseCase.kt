@@ -35,7 +35,7 @@ class GetAverageTemperatureInCitiesUseCase constructor(
         return async { weatherRepository.getCurrentWeather(city) }
     }
 
-    private suspend fun getCityTemperature(weather: CurrentWeather?): Double {
+    private fun getCityTemperature(weather: CurrentWeather?): Double {
         return weather?.main?.temp ?: 0.0
     }
 }
