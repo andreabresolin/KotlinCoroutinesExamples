@@ -53,30 +53,14 @@ class HomeActivity : AppCompatActivity(), HomeView {
     }
 
     private fun setupListeners() {
-        getCurrentWeatherSequentialButton.setOnClickListener { onGetCurrentWeatherSequentialButtonClick() }
-        getCurrentWeatherParallelButton.setOnClickListener { onGetCurrentWeatherParallelButtonClick() }
-        getAverageTemperatureButton.setOnClickListener { onGetAverageTemperatureButtonClick() }
-        getCurrentWeatherWithRetryButton.setOnClickListener { onGetCurrentWeatherWithRetryButtonClick() }
+        getWeatherSequentialButton.setOnClickListener { presenter.getWeatherSequential() }
+        getWeatherParallelButton.setOnClickListener { presenter.getWeatherParallel() }
+        getAverageTemperatureButton.setOnClickListener { presenter.getAverageTemperatureInCities() }
+        getWeatherWithRetryButton.setOnClickListener { presenter.getWeatherWithRetry() }
     }
 
     private fun setupCitiesWeatherList() {
         citiesWeatherList.adapter = CitiesWeatherListAdapter(this, presenter.getCitiesWeather())
-    }
-
-    private fun onGetCurrentWeatherSequentialButtonClick() {
-        presenter.getWeatherSequential()
-    }
-
-    private fun onGetCurrentWeatherParallelButtonClick() {
-        presenter.getWeatherParallel()
-    }
-
-    private fun onGetAverageTemperatureButtonClick() {
-        presenter.getAverageTemperatureInCities()
-    }
-
-    private fun onGetCurrentWeatherWithRetryButtonClick() {
-        presenter.getWeatherWithRetry()
     }
 
     override fun updateAllCities() {
@@ -91,6 +75,18 @@ class HomeActivity : AppCompatActivity(), HomeView {
         AlertDialog.Builder(this)
                 .setTitle(R.string.average_temperature_dialog_title)
                 .setMessage(getString(R.string.average_temperature_dialog_message, temperature))
+                .setPositiveButton(R.string.ok_dialog_button, {
+                    dialogInterface: DialogInterface, _: Int ->
+                    dialogInterface.dismiss()
+                })
+                .create()
+                .show()
+    }
+
+    override fun displayGetWeatherError() {
+        AlertDialog.Builder(this)
+                .setTitle(R.string.retrieval_error_dialog_title)
+                .setMessage(R.string.retrieval_error_dialog_message)
                 .setPositiveButton(R.string.ok_dialog_button, {
                     dialogInterface: DialogInterface, _: Int ->
                     dialogInterface.dismiss()
@@ -128,18 +124,6 @@ class HomeActivity : AppCompatActivity(), HomeView {
                 .setOnCancelListener {
                     continuation.resume(ErrorDialogResponse.CANCEL)
                 }
-                .create()
-                .show()
-    }
-
-    override fun displayGetWeatherError() {
-        AlertDialog.Builder(this)
-                .setTitle(R.string.retrieval_error_dialog_title)
-                .setMessage(R.string.retrieval_error_dialog_message)
-                .setPositiveButton(R.string.ok_dialog_button, {
-                    dialogInterface: DialogInterface, _: Int ->
-                    dialogInterface.dismiss()
-                })
                 .create()
                 .show()
     }

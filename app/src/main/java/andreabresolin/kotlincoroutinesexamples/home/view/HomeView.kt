@@ -28,9 +28,9 @@ interface HomeView {
     fun updateAllCities()
     fun updateCity(cityIndex: Int)
     fun displayAverageTemperature(temperature: Double)
+    fun displayGetWeatherError()
     fun displayGetWeatherError(place: String)
     fun displayGetWeatherErrorWithRetry(
             continuation: StickyContinuation<ErrorDialogResponse>,
             place: String)
-    fun displayGetWeatherError()
 }

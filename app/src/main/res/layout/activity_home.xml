@@ -15,31 +15,31 @@
         app:layout_constraintLeft_toLeftOf="parent">
 
         <Button
-            android:id="@+id/getCurrentWeatherSequentialButton"
+            android:id="@+id/getWeatherSequentialButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/get_current_weather_sequential_button"
             app:layout_constraintHorizontal_chainStyle="spread"
             app:layout_constraintHorizontal_weight="1"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toLeftOf="@id/getCurrentWeatherParallelButton" />
+            app:layout_constraintRight_toLeftOf="@id/getWeatherParallelButton" />
 
         <Button
-            android:id="@+id/getCurrentWeatherParallelButton"
+            android:id="@+id/getWeatherParallelButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/get_current_weather_parallel_button"
             app:layout_constraintHorizontal_weight="1"
-            app:layout_constraintLeft_toRightOf="@+id/getCurrentWeatherSequentialButton"
-            app:layout_constraintRight_toLeftOf="@id/getCurrentWeatherWithRetryButton" />
+            app:layout_constraintLeft_toRightOf="@+id/getWeatherSequentialButton"
+            app:layout_constraintRight_toLeftOf="@id/getWeatherWithRetryButton" />
 
         <Button
-            android:id="@+id/getCurrentWeatherWithRetryButton"
+            android:id="@+id/getWeatherWithRetryButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/get_current_weather_with_retry_button"
             app:layout_constraintHorizontal_weight="1"
-            app:layout_constraintLeft_toRightOf="@+id/getCurrentWeatherParallelButton"
+            app:layout_constraintLeft_toRightOf="@+id/getWeatherParallelButton"
             app:layout_constraintRight_toLeftOf="@id/getAverageTemperatureButton" />
 
         <Button
@@ -48,7 +48,7 @@
             android:layout_height="wrap_content"
             android:text="@string/get_average_temperature_button"
             app:layout_constraintHorizontal_weight="1"
-            app:layout_constraintLeft_toRightOf="@+id/getCurrentWeatherWithRetryButton"
+            app:layout_constraintLeft_toRightOf="@+id/getWeatherWithRetryButton"
             app:layout_constraintRight_toRightOf="parent"/>
 
     </android.support.constraint.ConstraintLayout>
