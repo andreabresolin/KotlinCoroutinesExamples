@@ -19,7 +19,7 @@ package andreabresolin.kotlincoroutinesexamples.home.presenter
 import andreabresolin.kotlincoroutinesexamples.app.model.CityWeather
 import andreabresolin.kotlincoroutinesexamples.app.presenter.BasePresenter
 
-interface HomePresenter<in ViewInterface> : BasePresenter<ViewInterface> {
+interface HomePresenter<ViewInterface> : BasePresenter<ViewInterface> {
     fun getCitiesWeather(): MutableList<CityWeather>
     fun getCurrentWeatherSequential()
     fun getCurrentWeatherParallel()

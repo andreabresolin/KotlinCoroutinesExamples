@@ -28,6 +28,7 @@ import andreabresolin.kotlincoroutinesexamples.home.domain.GetAverageTemperature
 import andreabresolin.kotlincoroutinesexamples.home.domain.GetCurrentWeatherUseCase
 import andreabresolin.kotlincoroutinesexamples.home.domain.GetCurrentWeatherUseCase.GetCurrentWeatherException
 import andreabresolin.kotlincoroutinesexamples.home.view.HomeView
+import andreabresolin.kotlincoroutinesexamples.home.view.HomeView.WeatherRetrievalErrorDialogResponse
 import andreabresolin.kotlincoroutinesexamples.home.view.HomeView.WeatherRetrievalErrorDialogResponse.CANCEL
 import andreabresolin.kotlincoroutinesexamples.home.view.HomeView.WeatherRetrievalErrorDialogResponse.RETRY
 import android.util.Log
@@ -156,11 +157,12 @@ class HomePresenterImpl : BasePresenterImpl<HomeView>(), HomePresenter<HomeView>
             updateCityWeather(1, LoadingCityWeather)
             updateCityWeather(1, getCurrentWeatherUseCase.execute(city.cityAndCountry))
         }, {
-            when (it) {
+            val error = it
+            when (error) {
                 is GetCurrentWeatherException -> {
                     updateCityWeather(1, UnknownCityWeather)
 
-                    when (view().displayWeatherRetrievalErrorDialogWithRetry(it.cityAndCountry)) {
+                    when (view().stickySuspension<WeatherRetrievalErrorDialogResponse> { displayWeatherRetrievalErrorDialogWithRetry(it, error.cityAndCountry) }) {
                         RETRY -> getCurrentWeatherForCityWithRetry(CITIES[1])
                         CANCEL -> {
                             updateCityWeather(1, UnknownCityWeather)

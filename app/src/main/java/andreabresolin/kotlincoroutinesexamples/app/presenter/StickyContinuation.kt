@@ -16,11 +16,20 @@
 
 package andreabresolin.kotlincoroutinesexamples.app.presenter
 
-import android.arch.lifecycle.Lifecycle
-import android.arch.lifecycle.LifecycleObserver
+import kotlin.coroutines.experimental.Continuation
 
-interface BasePresenter<View> : LifecycleObserver {
-    fun attachView(view: View, viewLifecycle: Lifecycle)
-    fun addStickyContinuation(continuation: StickyContinuation<*>, block: View.(StickyContinuation<*>) -> Unit)
-    fun removeStickyContinuation(continuation: StickyContinuation<*>): Boolean
+class StickyContinuation<in ReturnType>
+constructor(
+        private val continuation: Continuation<ReturnType>,
+        private val presenter: BasePresenter<*>) : Continuation<ReturnType> by continuation {
+
+    override fun resume(value: ReturnType) {
+        presenter.removeStickyContinuation(this)
+        continuation.resume(value)
+    }
+
+    override fun resumeWithException(exception: Throwable) {
+        presenter.removeStickyContinuation(this)
+        continuation.resumeWithException(exception)
+    }
 }

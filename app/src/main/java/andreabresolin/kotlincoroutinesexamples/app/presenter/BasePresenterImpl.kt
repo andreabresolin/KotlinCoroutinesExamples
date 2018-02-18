@@ -31,16 +31,17 @@ import kotlinx.coroutines.experimental.launch
 import kotlin.coroutines.experimental.Continuation
 import kotlin.coroutines.experimental.suspendCoroutine
 
-abstract class BasePresenterImpl<ViewInterface>: ViewModel(), BasePresenter<ViewInterface> {
+abstract class BasePresenterImpl<View>: ViewModel(), BasePresenter<View> {
 
     private val asyncJobs: MutableList<Job> = mutableListOf()
 
-    private var viewInstance: ViewInterface? = null
+    private var viewInstance: View? = null
     private var viewLifecycle: Lifecycle? = null
-    private var viewContinuations: MutableList<Continuation<ViewInterface>> = mutableListOf()
+    private val viewContinuations: MutableList<Continuation<View>> = mutableListOf()
+    private val stickyContinuations: MutableMap<StickyContinuation<*>, View.(StickyContinuation<*>) -> Unit> = mutableMapOf()
 
     @Synchronized
-    protected suspend fun view(): ViewInterface {
+    protected suspend fun view(): View {
         Log.d("BasePresenterImpl", "view(): start")
         viewInstance?.let {
             Log.d("BasePresenterImpl", "view(): checking viewLifecycle")
@@ -56,14 +57,14 @@ abstract class BasePresenterImpl<ViewInterface>: ViewModel(), BasePresenter<View
     }
 
     @Synchronized
-    override fun attachView(view: ViewInterface, viewLifecycle: Lifecycle) {
+    override fun attachView(view: View, viewLifecycle: Lifecycle) {
         viewInstance = view
         this.viewLifecycle = viewLifecycle
 
         onViewAttached(view)
     }
 
-    open protected fun onViewAttached(view: ViewInterface) {
+    open protected fun onViewAttached(view: View) {
         // Nothing to do here. This is an event handled by the subclasses.
     }
 
@@ -89,11 +90,49 @@ abstract class BasePresenterImpl<ViewInterface>: ViewModel(), BasePresenter<View
     }
 
     @Synchronized
+    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+    private fun onViewResumed() {
+        val view = viewInstance
+
+        if (view != null) {
+            val stickyContinuationsIterator = stickyContinuations.iterator()
+
+            while (stickyContinuationsIterator.hasNext()) {
+                val stickyContinuationBlockMap = stickyContinuationsIterator.next()
+                val stickyContinuation = stickyContinuationBlockMap.key
+                val stickyContinuationBlock = stickyContinuationBlockMap.value
+                view.stickyContinuationBlock(stickyContinuation)
+            }
+        }
+    }
+
+    @Synchronized
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     private fun onViewDestroyed() {
         Log.d("BasePresenterImpl", "onViewDestroyed")
         viewInstance = null
         viewLifecycle = null
+    }
+
+    @Synchronized
+    override fun addStickyContinuation(continuation: StickyContinuation<*>,
+                                       block: View.(StickyContinuation<*>) -> Unit) {
+        stickyContinuations[continuation] = block
+    }
+
+    @Synchronized
+    override fun removeStickyContinuation(continuation: StickyContinuation<*>): Boolean {
+        return stickyContinuations.remove(continuation) != null
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    suspend fun <ReturnType> View.stickySuspension(
+            block: View.(StickyContinuation<ReturnType>) -> Unit): ReturnType {
+        return suspendCoroutine<ReturnType> { continuation ->
+            val stickyContinuation: StickyContinuation<ReturnType> = StickyContinuation(continuation, this@BasePresenterImpl)
+            addStickyContinuation(stickyContinuation, block as View.(StickyContinuation<*>) -> Unit)
+            block(stickyContinuation)
+        }
     }
 
     @CallSuper

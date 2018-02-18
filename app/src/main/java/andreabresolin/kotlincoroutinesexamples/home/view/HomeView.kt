@@ -16,6 +16,7 @@
 
 package andreabresolin.kotlincoroutinesexamples.home.view
 
+import andreabresolin.kotlincoroutinesexamples.app.presenter.StickyContinuation
 import andreabresolin.kotlincoroutinesexamples.home.di.HomeComponent
 
 interface HomeView {
@@ -28,6 +29,8 @@ interface HomeView {
     fun updateCity(cityIndex: Int)
     fun displayAverageTemperature(averageTemperature: Double)
     fun displayWeatherRetrievalErrorDialog(place: String)
-    suspend fun displayWeatherRetrievalErrorDialogWithRetry(place: String): WeatherRetrievalErrorDialogResponse
+    fun displayWeatherRetrievalErrorDialogWithRetry(
+            continuation: StickyContinuation<WeatherRetrievalErrorDialogResponse>,
+            place: String)
     fun displayWeatherRetrievalGenericError()
 }

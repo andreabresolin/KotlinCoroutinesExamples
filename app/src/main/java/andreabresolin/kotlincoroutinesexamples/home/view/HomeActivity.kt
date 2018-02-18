@@ -17,6 +17,7 @@
 package andreabresolin.kotlincoroutinesexamples.home.view
 
 import andreabresolin.kotlincoroutinesexamples.R
+import andreabresolin.kotlincoroutinesexamples.app.presenter.StickyContinuation
 import andreabresolin.kotlincoroutinesexamples.home.di.HomeComponent
 import andreabresolin.kotlincoroutinesexamples.home.presenter.HomePresenter
 import andreabresolin.kotlincoroutinesexamples.home.presenter.HomePresenterImpl
@@ -27,8 +28,6 @@ import android.os.Bundle
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_home.*
-import kotlin.coroutines.experimental.Continuation
-import kotlin.coroutines.experimental.suspendCoroutine
 
 class HomeActivity : AppCompatActivity(), HomeView {
 
@@ -112,29 +111,25 @@ class HomeActivity : AppCompatActivity(), HomeView {
                 .show()
     }
 
-    override suspend fun displayWeatherRetrievalErrorDialogWithRetry(place: String): WeatherRetrievalErrorDialogResponse {
-        lateinit var result: Continuation<WeatherRetrievalErrorDialogResponse>
-
+    override fun displayWeatherRetrievalErrorDialogWithRetry(
+            continuation: StickyContinuation<WeatherRetrievalErrorDialogResponse>,
+            place: String) {
         AlertDialog.Builder(this)
                 .setTitle(R.string.retrieval_error_dialog_title)
                 .setMessage(getString(R.string.retrieval_error_dialog_message_with_retry, place))
-                .setPositiveButton(R.string.retry_dialog_button, {
-                    dialogInterface: DialogInterface, _: Int ->
+                .setPositiveButton(R.string.retry_dialog_button, { dialogInterface: DialogInterface, _: Int ->
                     dialogInterface.dismiss()
-                    result.resume(WeatherRetrievalErrorDialogResponse.RETRY)
+                    continuation.resume(WeatherRetrievalErrorDialogResponse.RETRY)
                 })
-                .setNegativeButton(R.string.cancel_dialog_button, {
-                    dialogInterface: DialogInterface, _: Int ->
+                .setNegativeButton(R.string.cancel_dialog_button, { dialogInterface: DialogInterface, _: Int ->
                     dialogInterface.dismiss()
-                    result.resume(WeatherRetrievalErrorDialogResponse.CANCEL)
+                    continuation.resume(WeatherRetrievalErrorDialogResponse.CANCEL)
                 })
                 .setOnCancelListener {
-                    result.resume(WeatherRetrievalErrorDialogResponse.CANCEL)
+                    continuation.resume(WeatherRetrievalErrorDialogResponse.CANCEL)
                 }
                 .create()
                 .show()
-
-        return suspendCoroutine { continuation -> result = continuation }
     }
 
     override fun displayWeatherRetrievalGenericError() {
