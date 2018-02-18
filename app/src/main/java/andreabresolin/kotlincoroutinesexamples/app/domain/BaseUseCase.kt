@@ -44,12 +44,17 @@ abstract class BaseUseCase {
     @CallSuper
     @Synchronized
     protected fun cancelAllAsync() {
-        deferredObjects.forEach {
-            it.cancel()
+        val deferredObjectsSize = deferredObjects.size
+
+        if (deferredObjectsSize > 0) {
+            for (i in deferredObjectsSize - 1 downTo 0) {
+                deferredObjects[i].cancel()
+            }
         }
     }
 
     @CallSuper
+    @Synchronized
     open fun cleanup() {
         cancelAllAsync()
     }

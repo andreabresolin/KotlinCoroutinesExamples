@@ -169,12 +169,17 @@ abstract class BasePresenterImpl<View>: ViewModel(), BasePresenter<View> {
     @CallSuper
     @Synchronized
     protected fun cancelAllAsync() {
-        asyncJobs.forEach {
-            it.cancel()
+        val asyncJobsSize = asyncJobs.size
+
+        if (asyncJobsSize > 0) {
+            for (i in asyncJobsSize - 1 downTo 0) {
+                asyncJobs[i].cancel()
+            }
         }
     }
 
     @CallSuper
+    @Synchronized
     open fun cleanup() {
         cancelAllAsync()
     }
