@@ -132,7 +132,7 @@ class HomeActivity : AppCompatActivity(), HomeView {
                 .show()
     }
 
-    override fun displayWeatherRetrievalGenericError() {
+    override fun displayGetWeatherError() {
         AlertDialog.Builder(this)
                 .setTitle(R.string.retrieval_error_dialog_title)
                 .setMessage(R.string.retrieval_error_dialog_message)

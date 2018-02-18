@@ -32,5 +32,5 @@ interface HomeView {
     fun displayGetWeatherErrorWithRetry(
             continuation: StickyContinuation<ErrorDialogResponse>,
             place: String)
-    fun displayWeatherRetrievalGenericError()
+    fun displayGetWeatherError()
 }

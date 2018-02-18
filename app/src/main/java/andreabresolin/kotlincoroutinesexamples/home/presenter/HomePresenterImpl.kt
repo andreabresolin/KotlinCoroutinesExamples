@@ -116,7 +116,7 @@ class HomePresenterImpl : BasePresenterImpl<HomeView>(), HomePresenter<HomeView>
         }, {
             when (it) {
                 is GetWeatherException -> view().displayGetWeatherError(it.cityAndCountry)
-                else -> view().displayWeatherRetrievalGenericError()
+                else -> view().displayGetWeatherError()
             }
         })
     }
@@ -132,7 +132,7 @@ class HomePresenterImpl : BasePresenterImpl<HomeView>(), HomePresenter<HomeView>
             }, {
                 when (it) {
                     is GetWeatherException -> view().displayGetWeatherError(it.cityAndCountry)
-                    else -> view().displayWeatherRetrievalGenericError()
+                    else -> view().displayGetWeatherError()
                 }
             })
         }
@@ -162,7 +162,7 @@ class HomePresenterImpl : BasePresenterImpl<HomeView>(), HomePresenter<HomeView>
                         }
                     }
                 }
-                else -> view().displayWeatherRetrievalGenericError()
+                else -> view().displayGetWeatherError()
             }
         })
     }
