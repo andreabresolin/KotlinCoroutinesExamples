@@ -14,7 +14,7 @@ To show examples of remote REST service calls, I’ve used the weather API at [O
 
 The main purpose of this project is showing how Kotlin coroutines can be used creatively to overcome the limits of the traditional asynchronous programming with callbacks. By applying coroutines to Android, we can go further and get rid of the limits of MVP and MVVM architectures to get the best of both.
 
-The architecture of this app is _MVP Clean_ where the presenter can also be used as a _ViewModel_. The presenter is in fact an extension of [_ViewModel_](https://developer.android.com/topic/libraries/architecture/viewmodel.html) so its lifecycle matches the one of the _ViewModel_, but can interact directly with the view without leaking it and allowing it to be replaced transparently.
+The architecture of this app is _MVP Clean_ where the presenter can also be used as a _ViewModel_. The presenter is in fact a subclass of [_ViewModel_](https://developer.android.com/topic/libraries/architecture/viewmodel.html) so its lifecycle matches the one of the _ViewModel_, but can interact directly with the view without leaking it and allowing it to be replaced transparently.
 
 This is a work in progress that can surely be improved, but will hopefully give you some new ideas to work with Kotlin coroutines.
 
@@ -32,7 +32,7 @@ Here are some examples of pros and cons that we have, in my opinion, with the ty
 
 #### Cons
 
-- keeps a reference to the view so it's lifecycle is strictly bound to the one of the view
+- the presenter keeps a reference to the view so its lifecycle is strictly bound to the one of the view
 - on configuration changes (like screen rotation), we can't easily preserve the state in the presenter and we typically stop all the asynchronous operations to restart them again when the new instance of the presenter is created unless we use the additional complexity of managing a service
 
 ### MVVM in Android
@@ -40,16 +40,16 @@ Here are some examples of pros and cons that we have, in my opinion, with the ty
 #### Pros
 
 - no direct reference to the view so the state of the _ViewModel_ can be preserved across configuration changes (like orientation changes)
-- the asynchronous operations can easily survive the view configuration changes allowing for a more efficient use of resources
+- the asynchronous operations can easily survive the view's configuration changes allowing for a more efficient use of resources
 - we can store in the _ViewModel_ all the state information that we want to keep on configuration changes without needing to restore it when the view instance changes
 
 #### Cons
 
-- to update the view, we set the state in the [_LiveData_](https://developer.android.com/topic/libraries/architecture/livedata.html), and this means that we still need to make a call to a method as in a presenter, but now we have the additional work to subscribe to the _LiveData_ in the view and handle a callback to perform the real state change on the view
+- to update the view, we set the state in [_LiveData_](https://developer.android.com/topic/libraries/architecture/livedata.html) objects, and this means that we still need to make a call to a method to update the state as in a presenter, but now we have the additional work to subscribe to the _LiveData_ in the view and handle a callback to perform the real state change on the view
 - given that _LiveData_ returns a single type and we might need additional information to update the state of the view as a _LiveData_ object changes, we might end up creating multiple custom types that hold all the information to be returned by the _LiveData_ or we need to coordinate multiple _LiveData_ objects, a problem that we never had in MVP with a presenter
 - automatically restoring the state of a new view instance with _LiveData_ poses new challenges in coordinating between the state that is restored from the traditional _Bundle_ and what is actually available in _LiveData_
 - complex UI flows can become challenging to achieve as opposed to MVP
-- to understand the flow in the code while updating the UI, we need to check where a _LiveData_ is set in the _ViewModel_, then jump to the observer method for that _LiveData_ inside the view, then jump to all that is called by that observer method, instead of a straightforward call to the view that we have in MVP (in case we use data-binding with MVVM, then we also need to jump to the view layouts)
+- to understand the flow in the code when updating the UI, we need to check where a _LiveData_ is set in the _ViewModel_, then jump to the observer method for that _LiveData_ inside the view, then jump to all that is called by that observer method, instead of a straightforward call to the view that we have in MVP (in case we use data-binding with MVVM, then we also need to jump to the view layouts)
 
 ### RxJava in Android
 
@@ -72,11 +72,11 @@ Here are some examples of pros and cons that we have, in my opinion, with the ty
 
 The main benefits that we can gain from using coroutines in Kotlin are the following:
 
-- totally remove any callback (and consequently not needing to pass around state information across multiple methods or storing temporary state in the presenter/_ViewModel_)
+- totally remove any callback (and consequently no more need to pass around state information across multiple methods or storing temporary state in the presenter/_ViewModel_)
 - remove the dependency on an external library, RxJava, or use it only when strictly necessary, while still keeping all its familiar operators because they are provided out of the box by Kotlin on collections
 - all the asynchronous code can look totally synchronous with a great benefit in understanding and changing the flow as we need (a synchronous sequence of steps is much easier to manage as opposed to asynchronous code)
 - much more concise code
-- there are still not problems in testing the code with unit test
+- there are still no problems in testing the code with unit tests as in other architectures
 - switching some parts of the code from synchronous to asynchronous because of changed requirements doesn't create the need to change the unit tests in most of the code because we don't have additional callbacks generated by the asynchronous code (what is asynchronous looks synchronous in fact)
 
 ## What's shown in this example project
@@ -88,7 +88,7 @@ This project can be seen as an experiment in using Kotlin coroutines to achieve 
 - presenter state preserved on configuration changes because its lifecycle is not connected to the view (it's the same lifecycle as a _ViewModel_ instead)
 - replacement of the view instance totally transparent for the presenter on configuration changes (the presenter suspends while the view is not ready to be used and resumes automatically as soon as the view is ready again)
 - no callbacks for asynchronous operations
-- no callbacks while waiting from the presenter for some user interaction on the view (e.g. wait for the user to select an option in a dialog)
+- no callbacks while waiting from the presenter for some user interaction on the view (e.g. waiting for the user to select an option in a dialog)
 - automatic cleanup of the running asynchronous operations when the presenter is destroyed (taking advantage of the _ViewModel_ class lifecycle and Kotlin coroutines)
 - the code can be unit tested
 
