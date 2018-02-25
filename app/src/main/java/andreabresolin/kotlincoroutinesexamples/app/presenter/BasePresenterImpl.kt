@@ -27,6 +27,7 @@ import kotlinx.coroutines.experimental.CoroutineScope
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.experimental.Continuation
 import kotlin.coroutines.experimental.suspendCoroutine
 
@@ -36,6 +37,7 @@ abstract class BasePresenterImpl<View> : ViewModel(), BasePresenter<View> {
 
     private var viewInstance: View? = null
     private var viewLifecycle: Lifecycle? = null
+    private val isViewStarted = AtomicBoolean(false)
     private val viewContinuations: MutableList<Continuation<View>> = mutableListOf()
     private val stickyContinuations: MutableMap<StickyContinuation<*>, View.(StickyContinuation<*>) -> Unit> = mutableMapOf()
     private var mustRestoreStickyContinuations: Boolean = false
@@ -50,10 +52,8 @@ abstract class BasePresenterImpl<View> : ViewModel(), BasePresenter<View> {
 
     @Synchronized
     protected suspend fun view(): View {
-        viewInstance?.let {
-            if (viewLifecycle?.currentState?.isAtLeast(Lifecycle.State.STARTED) == true) {
-                return it
-            }
+        if (isViewStarted.get()) {
+            viewInstance?.let { return it }
         }
 
         // Wait until the view is ready to be used again
@@ -70,6 +70,12 @@ abstract class BasePresenterImpl<View> : ViewModel(), BasePresenter<View> {
 
     open protected fun onViewAttached(view: View) {
         // Nothing to do here. This is an event handled by the subclasses.
+    }
+
+    @Synchronized
+    @OnLifecycleEvent(Lifecycle.Event.ON_ANY)
+    private fun onViewStateChanged() {
+        isViewStarted.set(viewLifecycle?.currentState?.isAtLeast(Lifecycle.State.STARTED) ?: false)
     }
 
     @Synchronized
