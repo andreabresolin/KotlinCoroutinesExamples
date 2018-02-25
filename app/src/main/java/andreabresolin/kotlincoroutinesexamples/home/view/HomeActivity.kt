@@ -1,5 +1,5 @@
 /*
- *  Copyright 2017 Andrea Bresolin
+ *  Copyright 2018 Andrea Bresolin
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,95 +17,65 @@
 package andreabresolin.kotlincoroutinesexamples.home.view
 
 import andreabresolin.kotlincoroutinesexamples.R
-import andreabresolin.kotlincoroutinesexamples.app.App
-import andreabresolin.kotlincoroutinesexamples.home.di.HomeModule
+import andreabresolin.kotlincoroutinesexamples.app.presenter.StickyContinuation
+import andreabresolin.kotlincoroutinesexamples.home.di.HomeComponent
 import andreabresolin.kotlincoroutinesexamples.home.presenter.HomePresenter
-import andreabresolin.kotlincoroutinesexamples.home.view.HomeView.WeatherRetrievalErrorDialogResponse
+import andreabresolin.kotlincoroutinesexamples.home.presenter.HomePresenterImpl
+import andreabresolin.kotlincoroutinesexamples.home.view.HomeView.ErrorDialogResponse
+import android.arch.lifecycle.ViewModelProviders
 import android.content.DialogInterface
 import android.os.Bundle
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
-import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_home.*
-import javax.inject.Inject
-import kotlin.coroutines.experimental.Continuation
-import kotlin.coroutines.experimental.suspendCoroutine
 
 class HomeActivity : AppCompatActivity(), HomeView {
 
-    @Inject
-    internal lateinit var presenter: HomePresenter
-
-    private lateinit var citiesTextViews: List<TextView>
+    private lateinit var presenter: HomePresenter<HomeView>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
-        injectDependencies()
+        setupPresenter()
         setupListeners()
-
-        citiesTextViews = listOf(
-                currentWeatherCity1Text,
-                currentWeatherCity2Text,
-                currentWeatherCity3Text)
+        setupCitiesWeatherList()
     }
 
-    private fun injectDependencies() {
-        App.get()
-                .getAppComponent()
-                ?.plus(HomeModule(this))
-                ?.inject(this)
+    override fun injectDependencies(homeComponent: HomeComponent) {
+        homeComponent.inject(this)
+    }
+
+    private fun setupPresenter() {
+        presenter = ViewModelProviders.of(this).get(HomePresenterImpl::class.java)
+        presenter.attachView(this, lifecycle)
+        lifecycle.addObserver(presenter)
     }
 
     private fun setupListeners() {
-        getCurrentWeatherSequentialButton.setOnClickListener { onGetCurrentWeatherSequentialButtonClick() }
-        getCurrentWeatherParallelButton.setOnClickListener { onGetCurrentWeatherParallelButtonClick() }
-        getAverageTemperatureButton.setOnClickListener { onGetAverageTemperatureButtonClick() }
-        getCurrentWeatherWithRetryButton.setOnClickListener { onGetCurrentWeatherWithRetryButtonClick() }
+        getWeatherSequentialButton.setOnClickListener { presenter.getWeatherSequential() }
+        getWeatherParallelButton.setOnClickListener { presenter.getWeatherParallel() }
+        getWeatherIndependentButton.setOnClickListener { presenter.getWeatherIndependent() }
+        getAverageTemperatureButton.setOnClickListener { presenter.getAverageTemperature() }
+        getWeatherWithRetryButton.setOnClickListener { presenter.getWeatherWithRetry() }
     }
 
-    override fun onStop() {
-        presenter.cleanup()
-        super.onStop()
+    private fun setupCitiesWeatherList() {
+        citiesWeatherList.adapter = CitiesWeatherListAdapter(this, presenter.weather)
     }
 
-    private fun onGetCurrentWeatherSequentialButtonClick() {
-        presenter.getCurrentWeatherSequential()
+    override fun updateAllCities() {
+        citiesWeatherList.adapter.notifyDataSetChanged()
     }
 
-    private fun onGetCurrentWeatherParallelButtonClick() {
-        presenter.getCurrentWeatherParallel()
+    override fun updateCity(cityIndex: Int) {
+        citiesWeatherList.adapter.notifyItemChanged(cityIndex)
     }
 
-    private fun onGetAverageTemperatureButtonClick() {
-        presenter.getAverageTemperatureInCities()
-    }
-
-    private fun onGetCurrentWeatherWithRetryButtonClick() {
-        presenter.getCurrentWeatherForCityWithRetry()
-    }
-
-    override fun clearAllCities() {
-        citiesTextViews.forEach { it.text = "" }
-    }
-
-    override fun displayInProgressForCity(cityIndex: Int) {
-        citiesTextViews[cityIndex].text = getString(R.string.retrieval_in_progress)
-    }
-
-    override fun displayCanceledForCity(cityIndex: Int) {
-        citiesTextViews[cityIndex].text = getString(R.string.retrieval_canceled)
-    }
-
-    override fun displayWeatherForCity(cityIndex: Int, cityName: String, description: String, temperature: Double) {
-        citiesTextViews[cityIndex].text = getString(R.string.retrieval_result, cityName, description, temperature)
-    }
-
-    override fun displayAverageTemperature(averageTemperature: Double) {
+    override fun displayAverageTemperature(temperature: Double) {
         AlertDialog.Builder(this)
                 .setTitle(R.string.average_temperature_dialog_title)
-                .setMessage(getString(R.string.average_temperature_dialog_message, averageTemperature))
+                .setMessage(getString(R.string.average_temperature_dialog_message, temperature))
                 .setPositiveButton(R.string.ok_dialog_button, {
                     dialogInterface: DialogInterface, _: Int ->
                     dialogInterface.dismiss()
@@ -114,7 +84,19 @@ class HomeActivity : AppCompatActivity(), HomeView {
                 .show()
     }
 
-    override fun displayWeatherRetrievalErrorDialog(place: String) {
+    override fun displayGetWeatherError() {
+        AlertDialog.Builder(this)
+                .setTitle(R.string.retrieval_error_dialog_title)
+                .setMessage(R.string.retrieval_error_dialog_message)
+                .setPositiveButton(R.string.ok_dialog_button, {
+                    dialogInterface: DialogInterface, _: Int ->
+                    dialogInterface.dismiss()
+                })
+                .create()
+                .show()
+    }
+
+    override fun displayGetWeatherError(place: String) {
         AlertDialog.Builder(this)
                 .setTitle(R.string.retrieval_error_dialog_title)
                 .setMessage(getString(R.string.retrieval_error_dialog_message_with_place, place))
@@ -126,39 +108,23 @@ class HomeActivity : AppCompatActivity(), HomeView {
                 .show()
     }
 
-    override suspend fun displayWeatherRetrievalErrorDialogWithRetry(place: String): WeatherRetrievalErrorDialogResponse {
-        lateinit var result: Continuation<WeatherRetrievalErrorDialogResponse>
-
+    override fun displayGetWeatherErrorWithRetry(
+            continuation: StickyContinuation<ErrorDialogResponse>,
+            place: String) {
         AlertDialog.Builder(this)
                 .setTitle(R.string.retrieval_error_dialog_title)
                 .setMessage(getString(R.string.retrieval_error_dialog_message_with_retry, place))
-                .setPositiveButton(R.string.retry_dialog_button, {
-                    dialogInterface: DialogInterface, _: Int ->
+                .setPositiveButton(R.string.retry_dialog_button, { dialogInterface: DialogInterface, _: Int ->
                     dialogInterface.dismiss()
-                    result.resume(WeatherRetrievalErrorDialogResponse.RETRY)
+                    continuation.resume(ErrorDialogResponse.RETRY)
                 })
-                .setNegativeButton(R.string.cancel_dialog_button, {
-                    dialogInterface: DialogInterface, _: Int ->
+                .setNegativeButton(R.string.cancel_dialog_button, { dialogInterface: DialogInterface, _: Int ->
                     dialogInterface.dismiss()
-                    result.resume(WeatherRetrievalErrorDialogResponse.CANCEL)
+                    continuation.resume(ErrorDialogResponse.CANCEL)
                 })
                 .setOnCancelListener {
-                    result.resume(WeatherRetrievalErrorDialogResponse.CANCEL)
+                    continuation.resume(ErrorDialogResponse.CANCEL)
                 }
-                .create()
-                .show()
-
-        return suspendCoroutine { continuation -> result = continuation }
-    }
-
-    override fun displayWeatherRetrievalGenericError() {
-        AlertDialog.Builder(this)
-                .setTitle(R.string.retrieval_error_dialog_title)
-                .setMessage(R.string.retrieval_error_dialog_message)
-                .setPositiveButton(R.string.ok_dialog_button, {
-                    dialogInterface: DialogInterface, _: Int ->
-                    dialogInterface.dismiss()
-                })
                 .create()
                 .show()
     }

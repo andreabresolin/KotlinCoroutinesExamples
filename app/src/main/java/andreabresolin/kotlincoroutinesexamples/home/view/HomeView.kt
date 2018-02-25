@@ -1,5 +1,5 @@
 /*
- *  Copyright 2017 Andrea Bresolin
+ *  Copyright 2018 Andrea Bresolin
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,17 +16,21 @@
 
 package andreabresolin.kotlincoroutinesexamples.home.view
 
+import andreabresolin.kotlincoroutinesexamples.app.presenter.StickyContinuation
+import andreabresolin.kotlincoroutinesexamples.home.di.HomeComponent
+
 interface HomeView {
-    enum class WeatherRetrievalErrorDialogResponse {
+    enum class ErrorDialogResponse {
         RETRY, CANCEL
     }
 
-    fun clearAllCities()
-    fun displayInProgressForCity(cityIndex: Int)
-    fun displayCanceledForCity(cityIndex: Int)
-    fun displayWeatherForCity(cityIndex: Int, cityName: String, description: String, temperature: Double)
-    fun displayAverageTemperature(averageTemperature: Double)
-    fun displayWeatherRetrievalErrorDialog(place: String)
-    suspend fun displayWeatherRetrievalErrorDialogWithRetry(place: String): WeatherRetrievalErrorDialogResponse
-    fun displayWeatherRetrievalGenericError()
+    fun injectDependencies(homeComponent: HomeComponent)
+    fun updateAllCities()
+    fun updateCity(cityIndex: Int)
+    fun displayAverageTemperature(temperature: Double)
+    fun displayGetWeatherError()
+    fun displayGetWeatherError(place: String)
+    fun displayGetWeatherErrorWithRetry(
+            continuation: StickyContinuation<ErrorDialogResponse>,
+            place: String)
 }

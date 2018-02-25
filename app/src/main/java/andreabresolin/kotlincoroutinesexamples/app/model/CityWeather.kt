@@ -1,5 +1,5 @@
 /*
- *  Copyright 2017 Andrea Bresolin
+ *  Copyright 2018 Andrea Bresolin
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,4 +16,11 @@
 
 package andreabresolin.kotlincoroutinesexamples.app.model
 
-data class CityWeather(val description: String, val temperature: Double)
+sealed class CityWeather
+data class LoadedCityWeather(
+        val cityName: String,
+        val description: String,
+        val temperature: Double,
+        val icon: String?) : CityWeather()
+object LoadingCityWeather : CityWeather()
+object UnknownCityWeather : CityWeather()

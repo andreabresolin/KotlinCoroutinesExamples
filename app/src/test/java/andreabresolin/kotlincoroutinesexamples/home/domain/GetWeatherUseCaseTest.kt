@@ -1,5 +1,5 @@
 /*
- *  Copyright 2017 Andrea Bresolin
+ *  Copyright 2018 Andrea Bresolin
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,9 +17,9 @@
 package andreabresolin.kotlincoroutinesexamples.home.domain
 
 import andreabresolin.kotlincoroutinesexamples.app.model.City
-import andreabresolin.kotlincoroutinesexamples.app.model.CityWeather
+import andreabresolin.kotlincoroutinesexamples.app.model.LoadedCityWeather
 import andreabresolin.kotlincoroutinesexamples.app.repository.WeatherRepository
-import andreabresolin.kotlincoroutinesexamples.testutils.KotlinTestsUtils.Companion.whenever
+import andreabresolin.kotlincoroutinesexamples.testutils.KotlinTestUtils.Companion.whenever
 import andreabresolin.kotlincoroutinesexamples.testutils.Stubs
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.experimental.runBlocking
@@ -31,16 +31,16 @@ import org.mockito.Mockito.verify
 import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
-class GetCurrentWeatherUseCaseTest {
+class GetWeatherUseCaseTest {
 
     @Mock
     private lateinit var mockWeatherRepository: WeatherRepository
 
-    private lateinit var subject: GetCurrentWeatherUseCase
+    private lateinit var subject: GetWeatherUseCase
 
     @Before
     fun before() {
-        subject = GetCurrentWeatherUseCase(mockWeatherRepository)
+        subject = GetWeatherUseCase(mockWeatherRepository)
     }
 
     @Test
@@ -48,15 +48,18 @@ class GetCurrentWeatherUseCaseTest {
         runBlocking {
             // Given
             val givenCity = City("New York", "us")
+
             whenever(mockWeatherRepository.getCurrentWeather(givenCity.cityAndCountry)).thenReturn(Stubs.STUB_WEATHER_NEW_YORK)
 
             // When
-            val givenResult: CityWeather? = subject.execute(givenCity.cityAndCountry)
+            val givenResult: LoadedCityWeather = subject.execute(givenCity.cityAndCountry) as LoadedCityWeather
 
             // Then
             verify(mockWeatherRepository).getCurrentWeather(givenCity.cityAndCountry)
-            assertThat(givenResult?.description).isEqualTo(Stubs.STUB_WEATHER_NEW_YORK.weather?.get(0)?.description)
-            assertThat(givenResult?.temperature).isEqualTo(Stubs.STUB_WEATHER_NEW_YORK.main?.temp)
+            assertThat(givenResult.cityName).isEqualTo(Stubs.STUB_WEATHER_NEW_YORK.name)
+            assertThat(givenResult.description).isEqualTo(Stubs.STUB_WEATHER_NEW_YORK.weather?.get(0)?.description)
+            assertThat(givenResult.temperature).isEqualTo(Stubs.STUB_WEATHER_NEW_YORK.main?.temp)
+            assertThat(givenResult.icon).isEqualTo(Stubs.STUB_WEATHER_NEW_YORK.weather?.get(0)?.icon)
         }
     }
 }

@@ -24,5 +24,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Scope
 @Retention(RUNTIME)
-public @interface PerActivity {
+public @interface PerPresenter
+{
 }

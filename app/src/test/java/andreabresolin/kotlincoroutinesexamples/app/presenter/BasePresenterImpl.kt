@@ -1,5 +1,5 @@
 /*
- *  Copyright 2017 Andrea Bresolin
+ *  Copyright 2018 Andrea Bresolin
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,17 +19,66 @@ package andreabresolin.kotlincoroutinesexamples.app.presenter
 import andreabresolin.kotlincoroutinesexamples.app.utils.CoroutinesUtils.Companion.tryCatch
 import andreabresolin.kotlincoroutinesexamples.app.utils.CoroutinesUtils.Companion.tryCatchFinally
 import andreabresolin.kotlincoroutinesexamples.app.utils.CoroutinesUtils.Companion.tryFinally
+import andreabresolin.kotlincoroutinesexamples.testutils.KotlinTestUtils.Companion.mockContinuation
+import android.arch.lifecycle.Lifecycle
 import kotlinx.coroutines.experimental.CoroutineScope
 import kotlinx.coroutines.experimental.runBlocking
 
-open class BasePresenter {
+abstract class BasePresenterImpl<View> : BasePresenter<View> {
 
-    @Synchronized
+    private var mockView: View? = null
+
+    protected fun injectDependencies() {
+        // Nothing to do
+    }
+
+    open protected fun onInjectDependencies() {
+        // Nothing to do
+    }
+
+    protected suspend fun view(): View {
+        return mockView!!
+    }
+
+    override fun attachView(view: View, viewLifecycle: Lifecycle) {
+        mockView = view
+    }
+
+    open protected fun onViewAttached(view: View) {
+        // Nothing to do
+    }
+
+    override fun addStickyContinuation(continuation: StickyContinuation<*>,
+                                       block: View.(StickyContinuation<*>) -> Unit) {
+        // Nothing to do
+    }
+
+    override fun removeStickyContinuation(continuation: StickyContinuation<*>): Boolean {
+        // Nothing to do
+        return true
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    suspend fun <ReturnType> View.stickySuspension(
+            block: View.(StickyContinuation<ReturnType>) -> Unit): ReturnType {
+        val stickyContinuation: StickyContinuation<ReturnType> =
+                StickyContinuation<ReturnType>(
+                        mockContinuation(),
+                        this@BasePresenterImpl)
+
+        block(stickyContinuation)
+
+        if (stickyContinuation.resumeException != null) {
+            throw stickyContinuation.resumeException as Throwable
+        }
+
+        return stickyContinuation.resumeValue as ReturnType
+    }
+
     protected fun launchAsync(block: suspend CoroutineScope.() -> Unit) {
         runBlocking { block() }
     }
 
-    @Synchronized
     protected fun launchAsyncTryCatch(
             tryBlock: suspend CoroutineScope.() -> Unit,
             catchBlock: suspend CoroutineScope.(Throwable) -> Unit,
@@ -37,7 +86,6 @@ open class BasePresenter {
         launchAsync { tryCatch(tryBlock, catchBlock, handleCancellationExceptionManually) }
     }
 
-    @Synchronized
     protected fun launchAsyncTryCatchFinally(
             tryBlock: suspend CoroutineScope.() -> Unit,
             catchBlock: suspend CoroutineScope.(Throwable) -> Unit,
@@ -46,7 +94,6 @@ open class BasePresenter {
         launchAsync { tryCatchFinally(tryBlock, catchBlock, finallyBlock, handleCancellationExceptionManually) }
     }
 
-    @Synchronized
     protected fun launchAsyncTryFinally(
             tryBlock: suspend CoroutineScope.() -> Unit,
             finallyBlock: suspend CoroutineScope.() -> Unit,
@@ -54,7 +101,6 @@ open class BasePresenter {
         launchAsync { tryFinally(tryBlock, finallyBlock, suppressCancellationException) }
     }
 
-    @Synchronized
     protected fun cancelAllAsync() {
         // Nothing to do
     }

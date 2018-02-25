@@ -1,5 +1,5 @@
 /*
- *  Copyright 2017 Andrea Bresolin
+ *  Copyright 2018 Andrea Bresolin
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,41 +16,25 @@
 
 package andreabresolin.kotlincoroutinesexamples.home.di
 
-import andreabresolin.kotlincoroutinesexamples.app.di.scopes.PerActivity
+import andreabresolin.kotlincoroutinesexamples.app.di.scopes.PerPresenter
 import andreabresolin.kotlincoroutinesexamples.app.repository.WeatherRepository
-import andreabresolin.kotlincoroutinesexamples.home.domain.GetAverageTemperatureInCitiesUseCase
-import andreabresolin.kotlincoroutinesexamples.home.domain.GetCurrentWeatherUseCase
-import andreabresolin.kotlincoroutinesexamples.home.presenter.HomePresenter
-import andreabresolin.kotlincoroutinesexamples.home.presenter.HomePresenterImpl
-import andreabresolin.kotlincoroutinesexamples.home.view.HomeActivity
-import andreabresolin.kotlincoroutinesexamples.home.view.HomeView
+import andreabresolin.kotlincoroutinesexamples.home.domain.GetAverageTemperatureUseCase
+import andreabresolin.kotlincoroutinesexamples.home.domain.GetWeatherUseCase
 import dagger.Module
 import dagger.Provides
 
 @Module
-class HomeModule constructor(private val activity: HomeActivity) {
+class HomeModule {
 
     @Provides
-    @PerActivity
-    internal fun provideView() : HomeView {
-        return activity
+    @PerPresenter
+    internal fun provideGetWeatherUseCase(weatherRepository: WeatherRepository) : GetWeatherUseCase {
+        return GetWeatherUseCase(weatherRepository)
     }
 
     @Provides
-    @PerActivity
-    internal fun providePresenter(presenter: HomePresenterImpl) : HomePresenter {
-        return presenter
-    }
-
-    @Provides
-    @PerActivity
-    internal fun provideGetCurrentWeatherUseCase(weatherRepository: WeatherRepository) : GetCurrentWeatherUseCase {
-        return GetCurrentWeatherUseCase(weatherRepository)
-    }
-
-    @Provides
-    @PerActivity
-    internal fun provideGetAverageTemperatureInCitiesUseCase(weatherRepository: WeatherRepository) : GetAverageTemperatureInCitiesUseCase {
-        return GetAverageTemperatureInCitiesUseCase(weatherRepository)
+    @PerPresenter
+    internal fun provideGetAverageTemperatureUseCase(weatherRepository: WeatherRepository) : GetAverageTemperatureUseCase {
+        return GetAverageTemperatureUseCase(weatherRepository)
     }
 }
