@@ -1,5 +1,5 @@
 /*
- *  Copyright 2017 Andrea Bresolin
+ *  Copyright 2018 Andrea Bresolin
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,9 +16,13 @@
 
 package andreabresolin.kotlincoroutinesexamples.testutils
 
+import andreabresolin.kotlincoroutinesexamples.app.presenter.StickyContinuation
+import org.mockito.ArgumentMatchers.argThat
 import org.mockito.ArgumentMatchers.eq
+import org.mockito.Mockito
 import org.mockito.Mockito.`when`
 import org.mockito.stubbing.OngoingStubbing
+import kotlin.coroutines.experimental.Continuation
 
 interface KotlinTestsUtils {
     companion object {
@@ -27,8 +31,22 @@ interface KotlinTestsUtils {
             return string
         }
 
-        fun <T> whenever(methodCall: T): OngoingStubbing<T> {
-            return `when`(methodCall)
+        inline fun <reified T> whenever(methodCall: T): OngoingStubbing<T> {
+            if (T::class.java == Unit.javaClass) {
+                return `when`(methodCall).then {  }
+            } else {
+                return `when`(methodCall)
+            }
+        }
+
+        fun <ReturnType> stubStickyContinuation(stickyContinuation: StickyContinuation<ReturnType>): StickyContinuation<ReturnType> {
+            argThat<StickyContinuation<ReturnType>>(StickyContinuationArgumentMatcher<ReturnType>(stickyContinuation))
+            return stickyContinuation
+        }
+
+        @Suppress("UNCHECKED_CAST")
+        fun <T> mockContinuation(): Continuation<T> {
+            return Mockito.mock(Continuation::class.java) as Continuation<T>
         }
     }
 }

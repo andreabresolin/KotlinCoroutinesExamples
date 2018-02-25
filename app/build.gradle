@@ -40,7 +40,7 @@ ext {
     retrofit_version = '2.3.0'
     okhttp_version = '3.9.1'
     kotlin_coroutines_version = '0.22.2'
-    mockito_version = '2.13.0'
+    mockito_version = '2.15.0'
     truth_version = '0.39'
     architecture_lifecycle_compiler_version = '1.1.0'
     architecture_lifecycle_extensions_version = '1.1.0'

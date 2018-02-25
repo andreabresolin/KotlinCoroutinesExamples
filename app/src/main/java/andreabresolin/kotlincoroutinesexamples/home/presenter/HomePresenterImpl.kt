@@ -55,7 +55,7 @@ class HomePresenterImpl : BasePresenterImpl<HomeView>(), HomePresenter<HomeView>
         initCitiesWeather()
     }
 
-    private fun injectDependencies() {
+    override fun onInjectDependencies() {
         homeComponent = App.get()
                 .getAppComponent()
                 ?.plus(HomeModule())

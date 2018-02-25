@@ -30,7 +30,7 @@ import kotlinx.coroutines.experimental.launch
 import kotlin.coroutines.experimental.Continuation
 import kotlin.coroutines.experimental.suspendCoroutine
 
-abstract class BasePresenterImpl<View>: ViewModel(), BasePresenter<View> {
+abstract class BasePresenterImpl<View> : ViewModel(), BasePresenter<View> {
 
     private val asyncJobs: MutableList<Job> = mutableListOf()
 
@@ -39,6 +39,14 @@ abstract class BasePresenterImpl<View>: ViewModel(), BasePresenter<View> {
     private val viewContinuations: MutableList<Continuation<View>> = mutableListOf()
     private val stickyContinuations: MutableMap<StickyContinuation<*>, View.(StickyContinuation<*>) -> Unit> = mutableMapOf()
     private var mustRestoreStickyContinuations: Boolean = false
+
+    protected fun injectDependencies() {
+        onInjectDependencies()
+    }
+
+    open protected fun onInjectDependencies() {
+        // Nothing to do here. This is an event handled by the subclasses.
+    }
 
     @Synchronized
     protected suspend fun view(): View {
