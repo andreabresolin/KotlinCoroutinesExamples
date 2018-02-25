@@ -146,9 +146,7 @@ class HomePresenterImpl : BasePresenterImpl<HomeView>(), HomePresenter<HomeView>
 
                     when (view().stickySuspension<ErrorDialogResponse> { displayGetWeatherErrorWithRetry(it, error.cityAndCountry) }) {
                         RETRY -> getWeatherWithRetry(CITIES[1])
-                        CANCEL -> {
-                            updateCityWeather(1, UnknownCityWeather)
-                        }
+                        CANCEL -> updateCityWeather(1, UnknownCityWeather)
                     }
                 }
                 else -> view().displayGetWeatherError()

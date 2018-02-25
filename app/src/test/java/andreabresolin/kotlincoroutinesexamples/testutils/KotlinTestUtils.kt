@@ -24,7 +24,7 @@ import org.mockito.Mockito.`when`
 import org.mockito.stubbing.OngoingStubbing
 import kotlin.coroutines.experimental.Continuation
 
-interface KotlinTestsUtils {
+interface KotlinTestUtils {
     companion object {
         fun eqString(string: String): String {
             eq(string)

@@ -141,6 +141,14 @@ abstract class BasePresenterImpl<View> : ViewModel(), BasePresenter<View> {
         return stickyContinuations.remove(continuation) != null
     }
 
+    /**
+     * Executes the given block on the view. The block is executed again
+     * every time the view instance changes and the new view is resumed.
+     * This, for example, is useful for dialogs that need to be persisted
+     * across orientation changes.
+     *
+     * @param block code that has to be executed on the view
+     */
     @Suppress("UNCHECKED_CAST")
     suspend fun <ReturnType> View.stickySuspension(
             block: View.(StickyContinuation<ReturnType>) -> Unit): ReturnType {

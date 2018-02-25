@@ -19,7 +19,7 @@ package andreabresolin.kotlincoroutinesexamples.home.domain
 import andreabresolin.kotlincoroutinesexamples.app.model.City
 import andreabresolin.kotlincoroutinesexamples.app.model.LoadedCityWeather
 import andreabresolin.kotlincoroutinesexamples.app.repository.WeatherRepository
-import andreabresolin.kotlincoroutinesexamples.testutils.KotlinTestsUtils.Companion.whenever
+import andreabresolin.kotlincoroutinesexamples.testutils.KotlinTestUtils.Companion.whenever
 import andreabresolin.kotlincoroutinesexamples.testutils.Stubs
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.experimental.runBlocking

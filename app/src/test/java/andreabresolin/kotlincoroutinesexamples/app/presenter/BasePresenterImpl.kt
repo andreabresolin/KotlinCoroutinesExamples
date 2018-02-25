@@ -19,7 +19,7 @@ package andreabresolin.kotlincoroutinesexamples.app.presenter
 import andreabresolin.kotlincoroutinesexamples.app.utils.CoroutinesUtils.Companion.tryCatch
 import andreabresolin.kotlincoroutinesexamples.app.utils.CoroutinesUtils.Companion.tryCatchFinally
 import andreabresolin.kotlincoroutinesexamples.app.utils.CoroutinesUtils.Companion.tryFinally
-import andreabresolin.kotlincoroutinesexamples.testutils.KotlinTestsUtils.Companion.mockContinuation
+import andreabresolin.kotlincoroutinesexamples.testutils.KotlinTestUtils.Companion.mockContinuation
 import android.arch.lifecycle.Lifecycle
 import kotlinx.coroutines.experimental.CoroutineScope
 import kotlinx.coroutines.experimental.runBlocking
