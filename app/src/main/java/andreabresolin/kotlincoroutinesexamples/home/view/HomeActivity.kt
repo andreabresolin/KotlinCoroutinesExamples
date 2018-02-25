@@ -32,6 +32,7 @@ import kotlinx.android.synthetic.main.activity_home.*
 class HomeActivity : AppCompatActivity(), HomeView {
 
     private lateinit var presenter: HomePresenter<HomeView>
+    private val openDialogs: MutableList<AlertDialog> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,6 +65,14 @@ class HomeActivity : AppCompatActivity(), HomeView {
         citiesWeatherList.adapter = CitiesWeatherListAdapter(this, presenter.weather)
     }
 
+    override fun onDestroy() {
+        openDialogs.forEach {
+            it.dismiss()
+        }
+
+        super.onDestroy()
+    }
+
     override fun updateAllCities() {
         citiesWeatherList.adapter.notifyDataSetChanged()
     }
@@ -73,45 +82,65 @@ class HomeActivity : AppCompatActivity(), HomeView {
     }
 
     override fun displayAverageTemperature(temperature: Double) {
-        AlertDialog.Builder(this)
+        lateinit var dialog: AlertDialog
+
+        dialog = AlertDialog.Builder(this)
                 .setTitle(R.string.average_temperature_dialog_title)
                 .setMessage(getString(R.string.average_temperature_dialog_message, temperature))
                 .setPositiveButton(R.string.ok_dialog_button, {
                     dialogInterface: DialogInterface, _: Int ->
                     dialogInterface.dismiss()
                 })
+                .setOnDismissListener { openDialogs.remove(dialog) }
                 .create()
-                .show()
+
+        openDialogs.add(dialog)
+
+        dialog.show()
     }
 
     override fun displayGetWeatherError() {
-        AlertDialog.Builder(this)
+        lateinit var dialog: AlertDialog
+
+        dialog = AlertDialog.Builder(this)
                 .setTitle(R.string.retrieval_error_dialog_title)
                 .setMessage(R.string.retrieval_error_dialog_message)
                 .setPositiveButton(R.string.ok_dialog_button, {
                     dialogInterface: DialogInterface, _: Int ->
                     dialogInterface.dismiss()
                 })
+                .setOnDismissListener { openDialogs.remove(dialog) }
                 .create()
-                .show()
+
+        openDialogs.add(dialog)
+
+        dialog.show()
     }
 
     override fun displayGetWeatherError(place: String) {
-        AlertDialog.Builder(this)
+        lateinit var dialog: AlertDialog
+
+        dialog = AlertDialog.Builder(this)
                 .setTitle(R.string.retrieval_error_dialog_title)
                 .setMessage(getString(R.string.retrieval_error_dialog_message_with_place, place))
                 .setPositiveButton(R.string.ok_dialog_button, {
                     dialogInterface: DialogInterface, _: Int ->
                     dialogInterface.dismiss()
                 })
+                .setOnDismissListener { openDialogs.remove(dialog) }
                 .create()
-                .show()
+
+        openDialogs.add(dialog)
+
+        dialog.show()
     }
 
     override fun displayGetWeatherErrorWithRetry(
             continuation: StickyContinuation<ErrorDialogResponse>,
             place: String) {
-        AlertDialog.Builder(this)
+        lateinit var dialog: AlertDialog
+
+        dialog = AlertDialog.Builder(this)
                 .setTitle(R.string.retrieval_error_dialog_title)
                 .setMessage(getString(R.string.retrieval_error_dialog_message_with_retry, place))
                 .setPositiveButton(R.string.retry_dialog_button, { dialogInterface: DialogInterface, _: Int ->
@@ -125,7 +154,11 @@ class HomeActivity : AppCompatActivity(), HomeView {
                 .setOnCancelListener {
                     continuation.resume(ErrorDialogResponse.CANCEL)
                 }
+                .setOnDismissListener { openDialogs.remove(dialog) }
                 .create()
-                .show()
+
+        openDialogs.add(dialog)
+
+        dialog.show()
     }
 }
