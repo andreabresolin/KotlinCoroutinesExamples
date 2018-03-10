@@ -32,7 +32,7 @@ constructor(private val context: Context,
             private val citiesWeather: List<CityWeather>)
     : RecyclerView.Adapter<CitiesWeatherListAdapter.WeatherListViewHolder>() {
 
-    override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): WeatherListViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WeatherListViewHolder {
         val view = CityWeatherView(context)
         view.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
         return WeatherListViewHolder(view)
@@ -42,8 +42,8 @@ constructor(private val context: Context,
         return citiesWeather.size
     }
 
-    override fun onBindViewHolder(holder: WeatherListViewHolder?, position: Int) {
-        holder?.bind(citiesWeather[position])
+    override fun onBindViewHolder(holder: WeatherListViewHolder, position: Int) {
+        holder.bind(citiesWeather[position])
     }
 
     class WeatherListViewHolder constructor(private val view: CityWeatherView) : RecyclerView.ViewHolder(view) {
