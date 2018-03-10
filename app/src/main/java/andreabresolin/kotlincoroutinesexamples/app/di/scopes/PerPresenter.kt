@@ -1,5 +1,5 @@
 /*
- *  Copyright 2017 Andrea Bresolin
+ *  Copyright 2018 Andrea Bresolin
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,15 +14,11 @@
  *  limitations under the License.
  */
 
-package andreabresolin.kotlincoroutinesexamples.app.di.scopes;
+package andreabresolin.kotlincoroutinesexamples.app.di.scopes
 
-import java.lang.annotation.Retention;
-
-import javax.inject.Scope;
-
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import javax.inject.Scope
+import kotlin.annotation.AnnotationRetention.RUNTIME
 
 @Scope
 @Retention(RUNTIME)
-public @interface PerApplication {
-}
+annotation class PerPresenter
