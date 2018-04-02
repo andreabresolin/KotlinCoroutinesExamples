@@ -1,5 +1,5 @@
 /*
- *  Copyright 2017 Andrea Bresolin
+ *  Copyright 2018 Andrea Bresolin
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package andreabresolin.kotlincoroutinesexamples.app.network.api
 
 import andreabresolin.kotlincoroutinesexamples.app.network.model.CurrentWeather
+import andreabresolin.kotlincoroutinesexamples.app.network.model.WeatherForecast
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -28,4 +29,11 @@ interface WeatherApi {
     fun getCurrentWeather(@Query("q") cityName: String,
                           @Query("units") units: String,
                           @Query("appid") appId: String): Call<CurrentWeather>
+
+    // Docs: https://openweathermap.org/forecast5
+    // Example: http://api.openweathermap.org/data/2.5/forecast?q=London,uk&units=metric&appid=f04391f2a7b156421675d08ac24dc908
+    @GET("data/2.5/forecast")
+    fun getWeatherForecast(@Query("q") cityName: String,
+                           @Query("units") units: String,
+                           @Query("appid") appId: String): Call<WeatherForecast>
 }

@@ -14,13 +14,16 @@
  *  limitations under the License.
  */
 
-package andreabresolin.kotlincoroutinesexamples.app.model
+package andreabresolin.kotlincoroutinesexamples.forecast.di
 
-sealed class CityWeather
-data class LoadedCityWeather(
-        val city: City,
-        val description: String,
-        val temperature: Double,
-        val icon: String?) : CityWeather()
-object LoadingCityWeather : CityWeather()
-object UnknownCityWeather : CityWeather()
+import andreabresolin.kotlincoroutinesexamples.app.di.scopes.PerPresenter
+import andreabresolin.kotlincoroutinesexamples.forecast.presenter.ForecastPresenterImpl
+import andreabresolin.kotlincoroutinesexamples.forecast.view.ForecastActivity
+import dagger.Subcomponent
+
+@PerPresenter
+@Subcomponent(modules = [(ForecastModule::class)])
+interface ForecastComponent {
+    fun inject(forecastPresenter: ForecastPresenterImpl)
+    fun inject(forecastActivity: ForecastActivity)
+}

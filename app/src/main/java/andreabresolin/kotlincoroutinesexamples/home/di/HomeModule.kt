@@ -16,25 +16,8 @@
 
 package andreabresolin.kotlincoroutinesexamples.home.di
 
-import andreabresolin.kotlincoroutinesexamples.app.di.scopes.PerPresenter
-import andreabresolin.kotlincoroutinesexamples.app.repository.WeatherRepository
-import andreabresolin.kotlincoroutinesexamples.home.domain.GetAverageTemperatureUseCase
-import andreabresolin.kotlincoroutinesexamples.home.domain.GetWeatherUseCase
 import dagger.Module
-import dagger.Provides
 
 @Module
 class HomeModule {
-
-    @Provides
-    @PerPresenter
-    internal fun provideGetWeatherUseCase(weatherRepository: WeatherRepository) : GetWeatherUseCase {
-        return GetWeatherUseCase(weatherRepository)
-    }
-
-    @Provides
-    @PerPresenter
-    internal fun provideGetAverageTemperatureUseCase(weatherRepository: WeatherRepository) : GetAverageTemperatureUseCase {
-        return GetAverageTemperatureUseCase(weatherRepository)
-    }
 }

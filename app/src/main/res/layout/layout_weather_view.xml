@@ -12,14 +12,17 @@
         android:id="@+id/viewFlipper"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true">
 
         <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
             <TextView
-                android:id="@+id/cityNameText"
+                android:id="@+id/titleText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:layout_constraintTop_toTopOf="parent"
@@ -34,8 +37,18 @@
                 android:layout_height="wrap_content"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
-                tools:text="23.4°"
-                android:textSize="18sp"/>
+                android:textSize="18sp"
+                tools:text="23.4°"/>
+
+            <TextView
+                android:id="@+id/maxTemperatureText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/temperatureText"
+                android:layout_marginLeft="16dp"
+                android:textSize="18sp"
+                tools:text="26.8°"/>
 
             <ImageView
                 android:id="@+id/weatherIconImage"

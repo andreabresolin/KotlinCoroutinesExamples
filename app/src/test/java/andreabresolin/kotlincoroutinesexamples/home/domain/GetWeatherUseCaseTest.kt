@@ -44,22 +44,20 @@ class GetWeatherUseCaseTest {
     }
 
     @Test
-    fun execute_returnsWeatherForCity() {
-        runBlocking {
-            // Given
-            val givenCity = City("New York", "us")
+    fun execute_returnsWeatherForCity() = runBlocking {
+        // Given
+        val givenCity = City("New York", "us")
 
-            whenever(mockWeatherRepository.getCurrentWeather(givenCity.cityAndCountry)).thenReturn(Stubs.STUB_WEATHER_NEW_YORK)
+        whenever(mockWeatherRepository.getCurrentWeather(givenCity.cityAndCountry)).thenReturn(Stubs.STUB_WEATHER_NEW_YORK)
 
-            // When
-            val givenResult: LoadedCityWeather = subject.execute(givenCity.cityAndCountry) as LoadedCityWeather
+        // When
+        val givenResult: LoadedCityWeather = subject.execute(givenCity) as LoadedCityWeather
 
-            // Then
-            verify(mockWeatherRepository).getCurrentWeather(givenCity.cityAndCountry)
-            assertThat(givenResult.cityName).isEqualTo(Stubs.STUB_WEATHER_NEW_YORK.name)
-            assertThat(givenResult.description).isEqualTo(Stubs.STUB_WEATHER_NEW_YORK.weather?.get(0)?.description)
-            assertThat(givenResult.temperature).isEqualTo(Stubs.STUB_WEATHER_NEW_YORK.main?.temp)
-            assertThat(givenResult.icon).isEqualTo(Stubs.STUB_WEATHER_NEW_YORK.weather?.get(0)?.icon)
-        }
+        // Then
+        verify(mockWeatherRepository).getCurrentWeather(givenCity.cityAndCountry)
+        assertThat(givenResult.city).isEqualTo(givenCity)
+        assertThat(givenResult.description).isEqualTo(Stubs.STUB_WEATHER_NEW_YORK.weather?.get(0)?.description)
+        assertThat(givenResult.temperature).isEqualTo(Stubs.STUB_WEATHER_NEW_YORK.main?.temp)
+        assertThat(givenResult.icon).isEqualTo(Stubs.STUB_WEATHER_NEW_YORK.weather?.get(0)?.icon)
     }
 }

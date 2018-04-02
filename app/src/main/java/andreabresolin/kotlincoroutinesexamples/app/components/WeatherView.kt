@@ -19,28 +19,29 @@ package andreabresolin.kotlincoroutinesexamples.app.components
 import andreabresolin.kotlincoroutinesexamples.R
 import android.content.Context
 import android.util.AttributeSet
+import android.view.View
 import android.widget.FrameLayout
 import com.bumptech.glide.Glide
-import kotlinx.android.synthetic.main.layout_city_weather_view.view.*
+import kotlinx.android.synthetic.main.layout_weather_view.view.*
 
-class CityWeatherView : FrameLayout {
+class WeatherView : FrameLayout {
 
     companion object {
         private const val CONTENT_CHILD_INDEX = 0
         private const val LOADING_CHILD_INDEX = 1
     }
 
-    var cityName: String?
-        get() = cityNameText.text.toString()
-        set(value) {
-            cityNameText.text = value
-        }
+    var title: String?
+        get() = titleText.text.toString()
+        set(value) { titleText.text = value }
 
     var temperature: String?
         get() = temperatureText.text.toString()
-        set(value) {
-            temperatureText.text = value
-        }
+        set(value) { temperatureText.text = value }
+
+    var maxTemperature: String?
+        get() = maxTemperatureText.text.toString()
+        set(value) { maxTemperatureText.text = value }
 
     private var _weatherIconUrl: String? = null
     var weatherIconUrl: String?
@@ -59,6 +60,8 @@ class CityWeatherView : FrameLayout {
             viewFlipper.displayedChild = if (value) LOADING_CHILD_INDEX else CONTENT_CHILD_INDEX
         }
 
+    val content: View get() = viewFlipper
+
     constructor(context: Context) : super(context) {
         init(null, 0)
     }
@@ -72,15 +75,16 @@ class CityWeatherView : FrameLayout {
     }
 
     private fun init(attrs: AttributeSet?, defStyle: Int) {
-        inflate(context, R.layout.layout_city_weather_view, this)
+        inflate(context, R.layout.layout_weather_view, this)
 
         val a = context.obtainStyledAttributes(
-                attrs, R.styleable.CityWeatherView, defStyle, 0)
+                attrs, R.styleable.WeatherView, defStyle, 0)
 
-        cityName = a.getString(R.styleable.CityWeatherView_cityName) ?: "-"
-        temperature = a.getString(R.styleable.CityWeatherView_temperature) ?: "-.-"
-        weatherIconUrl = a.getString(R.styleable.CityWeatherView_weatherIconUrl)
-        isLoading = a.getBoolean(R.styleable.CityWeatherView_isLoading, false)
+        title = a.getString(R.styleable.WeatherView_title) ?: "-"
+        temperature = a.getString(R.styleable.WeatherView_temperature) ?: "-.-"
+        maxTemperature = a.getString(R.styleable.WeatherView_maxTemperature) ?: ""
+        weatherIconUrl = a.getString(R.styleable.WeatherView_weatherIconUrl)
+        isLoading = a.getBoolean(R.styleable.WeatherView_isLoading, false)
 
         a.recycle()
     }

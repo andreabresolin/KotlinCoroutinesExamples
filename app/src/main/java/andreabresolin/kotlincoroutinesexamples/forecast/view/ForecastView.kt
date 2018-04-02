@@ -14,20 +14,23 @@
  *  limitations under the License.
  */
 
-package andreabresolin.kotlincoroutinesexamples.app.di
+package andreabresolin.kotlincoroutinesexamples.forecast.view
 
-import andreabresolin.kotlincoroutinesexamples.app.App
-import andreabresolin.kotlincoroutinesexamples.app.di.scopes.PerApplication
+import andreabresolin.kotlincoroutinesexamples.app.presenter.StickyContinuation
 import andreabresolin.kotlincoroutinesexamples.forecast.di.ForecastComponent
-import andreabresolin.kotlincoroutinesexamples.forecast.di.ForecastModule
-import andreabresolin.kotlincoroutinesexamples.home.di.HomeComponent
-import andreabresolin.kotlincoroutinesexamples.home.di.HomeModule
-import dagger.Component
 
-@PerApplication
-@Component(modules = [(AppModule::class), (NetworkModule::class)])
-interface AppComponent {
-    fun inject(application: App)
-    fun plus(module: HomeModule): HomeComponent
-    fun plus(module: ForecastModule): ForecastComponent
+interface ForecastView {
+    enum class ErrorDialogResponse {
+        RETRY, CANCEL
+    }
+
+    fun injectDependencies(forecastComponent: ForecastComponent)
+    fun displayLoadingState()
+    fun displayContentState()
+    fun displayErrorState()
+    fun displayNoDataState()
+    fun updateAllForecasts()
+    fun displayLoadForecastsErrorWithRetry(
+            continuation: StickyContinuation<ErrorDialogResponse>,
+            place: String?)
 }

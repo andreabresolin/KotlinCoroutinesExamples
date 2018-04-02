@@ -2,7 +2,7 @@
 
 This app is provided as a proof of concept of some ideas about [Kotlin coroutines](https://kotlinlang.org/docs/reference/coroutines.html) in Android.
 
-This project is experimental and is not intended as production-ready code yet. It's currently just a way to show what can be achieved with Kotlin coroutines and how much powerful this tool can be.
+**This project is experimental and is not intended as production-ready code**. It's currently just a way to show what can be achieved with Kotlin coroutines and how much powerful this tool can be.
 
 An introduction to some of the ideas presented in this code can be found in the Medium post [Playing with Kotlin in Android: coroutines and how to get rid of the callback hell](https://medium.com/@andrea.bresolin/playing-with-kotlin-in-android-coroutines-and-how-to-get-rid-of-the-callback-hell-a96e817c108b).
 

@@ -36,7 +36,7 @@ import javax.inject.Inject
 class HomePresenterImpl : BasePresenterImpl<HomeView>(), HomePresenter<HomeView> {
 
     companion object {
-        private val CITIES: Array<City> = arrayOf(
+        private val CITIES: List<City> = listOf(
                 City("London", "uk"),
                 City("Venice", "it"),
                 City("New York", "us"))
@@ -73,11 +73,15 @@ class HomePresenterImpl : BasePresenterImpl<HomeView>(), HomePresenter<HomeView>
         super.cleanup()
     }
 
-    override val weather: MutableList<CityWeather>
+    override val weather: List<CityWeather>
         get() = citiesWeather
 
     private fun initCitiesWeather() {
         CITIES.forEach { citiesWeather.add(UnknownCityWeather) }
+    }
+
+    override fun isWeatherLoaded(): Boolean {
+        return !citiesWeather.all { it === UnknownCityWeather }
     }
 
     private suspend fun updateCityWeather(cityIndex: Int, cityWeather: CityWeather) {
@@ -89,7 +93,7 @@ class HomePresenterImpl : BasePresenterImpl<HomeView>(), HomePresenter<HomeView>
         launchAsyncTryCatch({
             CITIES.forEachIndexed { index, city ->
                 updateCityWeather(index, LoadingCityWeather)
-                updateCityWeather(index, getWeatherUseCase.execute(city.cityAndCountry))
+                updateCityWeather(index, getWeatherUseCase.execute(city))
             }
         }, {
             when (it) {
@@ -103,8 +107,7 @@ class HomePresenterImpl : BasePresenterImpl<HomeView>(), HomePresenter<HomeView>
         launchAsyncTryCatch({
             CITIES.indices.forEach { updateCityWeather(it, LoadingCityWeather) }
 
-            val citiesAndCountries: List<String> = CITIES.map { it.cityAndCountry }
-            val citiesWeather: List<CityWeather> = getWeatherUseCase.execute(citiesAndCountries)
+            val citiesWeather: List<CityWeather> = getWeatherUseCase.execute(CITIES)
 
             citiesWeather.forEachIndexed { index, cityWeather -> updateCityWeather(index, cityWeather) }
         }, {
@@ -123,7 +126,7 @@ class HomePresenterImpl : BasePresenterImpl<HomeView>(), HomePresenter<HomeView>
         CITIES.forEachIndexed { index, city ->
             launchAsyncTryCatch({
                 updateCityWeather(index, LoadingCityWeather)
-                updateCityWeather(index, getWeatherUseCase.execute(city.cityAndCountry))
+                updateCityWeather(index, getWeatherUseCase.execute(city))
             }, {
                 updateCityWeather(index, UnknownCityWeather)
             })
@@ -137,7 +140,7 @@ class HomePresenterImpl : BasePresenterImpl<HomeView>(), HomePresenter<HomeView>
     private fun getWeatherWithRetry(city: City) {
         launchAsyncTryCatch ({
             updateCityWeather(1, LoadingCityWeather)
-            updateCityWeather(1, getWeatherUseCase.execute(city.cityAndCountry))
+            updateCityWeather(1, getWeatherUseCase.execute(city))
         }, {
             val error = it
             when (error) {

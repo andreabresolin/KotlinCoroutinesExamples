@@ -14,13 +14,14 @@
  *  limitations under the License.
  */
 
-package andreabresolin.kotlincoroutinesexamples.app.model
+package andreabresolin.kotlincoroutinesexamples.forecast.presenter
 
-sealed class CityWeather
-data class LoadedCityWeather(
-        val city: City,
-        val description: String,
-        val temperature: Double,
-        val icon: String?) : CityWeather()
-object LoadingCityWeather : CityWeather()
-object UnknownCityWeather : CityWeather()
+import andreabresolin.kotlincoroutinesexamples.app.model.City
+import andreabresolin.kotlincoroutinesexamples.app.model.DayForecast
+import andreabresolin.kotlincoroutinesexamples.app.presenter.BasePresenter
+
+interface ForecastPresenter<ViewInterface> : BasePresenter<ViewInterface> {
+    val forecasts: List<DayForecast>
+
+    fun loadForecasts(city: City)
+}

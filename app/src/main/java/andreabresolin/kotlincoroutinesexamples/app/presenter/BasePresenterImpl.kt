@@ -37,7 +37,7 @@ abstract class BasePresenterImpl<View> : ViewModel(), BasePresenter<View> {
 
     private var viewInstance: View? = null
     private var viewLifecycle: Lifecycle? = null
-    private val isViewStarted = AtomicBoolean(false)
+    private val isViewResumed = AtomicBoolean(false)
     private val viewContinuations: MutableList<Continuation<View>> = mutableListOf()
     private val stickyContinuations: MutableMap<StickyContinuation<*>, View.(StickyContinuation<*>) -> Unit> = mutableMapOf()
     private var mustRestoreStickyContinuations: Boolean = false
@@ -52,7 +52,7 @@ abstract class BasePresenterImpl<View> : ViewModel(), BasePresenter<View> {
 
     @Synchronized
     protected suspend fun view(): View {
-        if (isViewStarted.get()) {
+        if (isViewResumed.get()) {
             viewInstance?.let { return it }
         }
 
@@ -75,12 +75,12 @@ abstract class BasePresenterImpl<View> : ViewModel(), BasePresenter<View> {
     @Synchronized
     @OnLifecycleEvent(Lifecycle.Event.ON_ANY)
     private fun onViewStateChanged() {
-        isViewStarted.set(viewLifecycle?.currentState?.isAtLeast(Lifecycle.State.STARTED) ?: false)
+        isViewResumed.set(viewLifecycle?.currentState?.isAtLeast(Lifecycle.State.RESUMED) ?: false)
     }
 
     @Synchronized
-    @OnLifecycleEvent(Lifecycle.Event.ON_START)
-    private fun onViewStarted() {
+    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+    private fun onViewReadyForContinuations() {
         val view = viewInstance
 
         if (view != null) {
@@ -100,7 +100,7 @@ abstract class BasePresenterImpl<View> : ViewModel(), BasePresenter<View> {
 
     @Synchronized
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
-    private fun onViewResumed() {
+    private fun onViewReadyForStickyContinuations() {
         val view = viewInstance
 
         if (mustRestoreStickyContinuations && view != null) {

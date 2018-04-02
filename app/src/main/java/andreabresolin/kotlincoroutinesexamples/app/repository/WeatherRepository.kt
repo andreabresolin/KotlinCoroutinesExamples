@@ -17,7 +17,9 @@
 package andreabresolin.kotlincoroutinesexamples.app.repository
 
 import andreabresolin.kotlincoroutinesexamples.app.network.model.CurrentWeather
+import andreabresolin.kotlincoroutinesexamples.app.network.model.WeatherForecast
 
 interface WeatherRepository {
     fun getCurrentWeather(cityAndCountry: String): CurrentWeather?
+    fun getWeatherForecast(cityAndCountry: String): WeatherForecast?
 }

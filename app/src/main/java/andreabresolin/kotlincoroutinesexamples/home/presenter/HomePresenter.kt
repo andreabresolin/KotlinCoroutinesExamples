@@ -20,8 +20,9 @@ import andreabresolin.kotlincoroutinesexamples.app.model.CityWeather
 import andreabresolin.kotlincoroutinesexamples.app.presenter.BasePresenter
 
 interface HomePresenter<ViewInterface> : BasePresenter<ViewInterface> {
-    val weather: MutableList<CityWeather>
+    val weather: List<CityWeather>
 
+    fun isWeatherLoaded(): Boolean
     fun getWeatherSequential()
     fun getWeatherParallel()
     fun getWeatherIndependent()

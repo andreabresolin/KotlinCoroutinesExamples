@@ -61,78 +61,72 @@ class HomePresenterImplTest {
     }
 
     @Test
-    fun getAverageTemperature_displaysAverageTemperature() {
-        runBlocking {
-            // Given
-            val givenAverageTemperature = 21.5
+    fun getAverageTemperature_displaysAverageTemperature() = runBlocking {
+        // Given
+        val givenAverageTemperature = 21.5
 
-            whenever(mockGetAverageTemperatureUseCase.execute(anyList())).thenReturn(givenAverageTemperature)
+        whenever(mockGetAverageTemperatureUseCase.execute(anyList())).thenReturn(givenAverageTemperature)
 
-            // When
-            subject.getAverageTemperature()
+        // When
+        subject.getAverageTemperature()
 
-            // Then
-            verify(mockView).displayAverageTemperature(givenAverageTemperature)
-        }
+        // Then
+        verify(mockView).displayAverageTemperature(givenAverageTemperature)
     }
 
     @Test
-    fun getWeatherWithRetry_andRetry_displaysWeatherForCity() {
-        runBlocking {
-            // Given
-            val givenCityIndex = 1
-            val givenWrongCity = City("VeniceWrong", "it")
-            val givenRightCity = City("Venice", "it")
-            val givenLoadedCityWeather = LoadedCityWeather("Venice", "sunny", 22.5, "icon")
-            val givenException = GetWeatherException(givenWrongCity.cityAndCountry)
-            val givenStickyContinuation = StickyContinuation<ErrorDialogResponse>(mockContinuation(), subject)
-            givenStickyContinuation.resume(RETRY)
+    fun getWeatherWithRetry_andRetry_displaysWeatherForCity() = runBlocking {
+        // Given
+        val givenCityIndex = 1
+        val givenWrongCity = City("VeniceWrong", "it")
+        val givenRightCity = City("Venice", "it")
+        val givenLoadedCityWeather = LoadedCityWeather(givenRightCity, "sunny", 22.5, "icon")
+        val givenException = GetWeatherException(givenWrongCity.cityAndCountry)
+        val givenStickyContinuation = StickyContinuation<ErrorDialogResponse>(mockContinuation(), subject)
+        givenStickyContinuation.resume(RETRY)
 
-            whenever(mockGetWeatherUseCase.execute(givenWrongCity.cityAndCountry)).thenThrow(givenException)
-            whenever(mockGetWeatherUseCase.execute(givenRightCity.cityAndCountry)).thenReturn(givenLoadedCityWeather)
-            whenever(mockView.displayGetWeatherErrorWithRetry(
-                    stubStickyContinuation(givenStickyContinuation),
-                    eqString(givenException.cityAndCountry)))
+        whenever(mockGetWeatherUseCase.execute(givenWrongCity)).thenThrow(givenException)
+        whenever(mockGetWeatherUseCase.execute(givenRightCity)).thenReturn(givenLoadedCityWeather)
+        whenever(mockView.displayGetWeatherErrorWithRetry(
+                stubStickyContinuation(givenStickyContinuation),
+                eqString(givenException.cityAndCountry)))
 
-            // When
-            subject.getWeatherWithRetry()
+        // When
+        subject.getWeatherWithRetry()
 
-            // Then
-            val updatedCityWeather = subject.weather[givenCityIndex]
-            assertThat(updatedCityWeather is LoadedCityWeather)
+        // Then
+        val updatedCityWeather = subject.weather[givenCityIndex]
+        assertThat(updatedCityWeather is LoadedCityWeather)
 
-            val loadedCityWeather = updatedCityWeather as LoadedCityWeather
-            assertThat(loadedCityWeather.cityName).isEqualTo(givenLoadedCityWeather.cityName)
-            assertThat(loadedCityWeather.description).isEqualTo(givenLoadedCityWeather.description)
-            assertThat(loadedCityWeather.temperature).isEqualTo(givenLoadedCityWeather.temperature)
-            assertThat(loadedCityWeather.icon).isEqualTo(givenLoadedCityWeather.icon)
+        val loadedCityWeather = updatedCityWeather as LoadedCityWeather
+        assertThat(loadedCityWeather.city).isEqualTo(givenLoadedCityWeather.city)
+        assertThat(loadedCityWeather.description).isEqualTo(givenLoadedCityWeather.description)
+        assertThat(loadedCityWeather.temperature).isEqualTo(givenLoadedCityWeather.temperature)
+        assertThat(loadedCityWeather.icon).isEqualTo(givenLoadedCityWeather.icon)
 
-            verify(mockView, times(4)).updateCity(givenCityIndex)
-        }
+        verify(mockView, times(4)).updateCity(givenCityIndex)
     }
 
     @Test
-    fun getWeatherWithRetry_andCancel_displaysCanceledForCity() {
-        runBlocking {
-            // Given
-            val givenCityIndex = 1
-            val givenWrongCity = City("VeniceWrong", "it")
-            val givenException = GetWeatherException(givenWrongCity.cityAndCountry)
-            val givenStickyContinuation = StickyContinuation<ErrorDialogResponse>(mockContinuation(), subject)
-            givenStickyContinuation.resume(CANCEL)
+    fun getWeatherWithRetry_andCancel_displaysCanceledForCity() = runBlocking {
+        // Given
+        val givenCityIndex = 1
+        val givenWrongCity = City("VeniceWrong", "it")
+        val givenException = GetWeatherException(givenWrongCity.cityAndCountry)
+        val givenStickyContinuation = StickyContinuation<ErrorDialogResponse>(mockContinuation(), subject)
+        givenStickyContinuation.resume(CANCEL)
 
-            whenever(mockGetWeatherUseCase.execute(givenWrongCity.cityAndCountry)).thenThrow(givenException)
-            whenever(mockView.displayGetWeatherErrorWithRetry(
-                    stubStickyContinuation(givenStickyContinuation),
-                    eqString(givenException.cityAndCountry)))
+        whenever(mockGetWeatherUseCase.execute(givenWrongCity)).thenThrow(givenException)
+        whenever(mockView.displayGetWeatherErrorWithRetry(
+                stubStickyContinuation(givenStickyContinuation),
+                eqString(givenException.cityAndCountry)))
 
-            // When
-            subject.getWeatherWithRetry()
+        // When
+        subject.getWeatherWithRetry()
 
-            // Then
-            val updatedCityWeather = subject.weather[givenCityIndex]
-            assertThat(updatedCityWeather).isEqualTo(UnknownCityWeather)
-            verify(mockView, times(3)).updateCity(givenCityIndex)
-        }
+        // Then
+        val updatedCityWeather = subject.weather[givenCityIndex]
+        assertThat(updatedCityWeather).isEqualTo(UnknownCityWeather)
+        verify(mockView, times(3)).updateCity(givenCityIndex)
     }
 }
