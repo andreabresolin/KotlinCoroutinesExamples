@@ -17,7 +17,8 @@
 package andreabresolin.kotlincoroutinesexamples.forecast.presenter
 
 import andreabresolin.kotlincoroutinesexamples.app.App
-import andreabresolin.kotlincoroutinesexamples.app.model.*
+import andreabresolin.kotlincoroutinesexamples.app.model.City
+import andreabresolin.kotlincoroutinesexamples.app.model.DayForecast
 import andreabresolin.kotlincoroutinesexamples.app.presenter.BasePresenterImpl
 import andreabresolin.kotlincoroutinesexamples.forecast.di.ForecastComponent
 import andreabresolin.kotlincoroutinesexamples.forecast.di.ForecastModule
@@ -25,7 +26,6 @@ import andreabresolin.kotlincoroutinesexamples.forecast.domain.GetForecastUseCas
 import andreabresolin.kotlincoroutinesexamples.forecast.domain.GetForecastUseCase.GetForecastException
 import andreabresolin.kotlincoroutinesexamples.forecast.view.ForecastView
 import andreabresolin.kotlincoroutinesexamples.forecast.view.ForecastView.ErrorDialogResponse
-import andreabresolin.kotlincoroutinesexamples.forecast.view.ForecastView.ErrorDialogResponse.CANCEL
 import andreabresolin.kotlincoroutinesexamples.forecast.view.ForecastView.ErrorDialogResponse.RETRY
 import javax.inject.Inject
 
