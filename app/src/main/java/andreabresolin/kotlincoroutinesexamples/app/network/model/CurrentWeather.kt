@@ -1,5 +1,5 @@
 /*
- *  Copyright 2017 Andrea Bresolin
+ *  Copyright 2018 Andrea Bresolin
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import com.google.gson.annotations.SerializedName
 
 data class CurrentWeather(
         @SerializedName("coord") val coord: Coord?,
-        @SerializedName("weather") val weather: List<Weather?>?,
+        @SerializedName("weather") val weather: List<Weather>?,
         @SerializedName("base") val base: String?,
         @SerializedName("main") val main: Main?,
         @SerializedName("wind") val wind: Wind?,
@@ -30,47 +30,4 @@ data class CurrentWeather(
         @SerializedName("sys") val sys: Sys?,
         @SerializedName("id") val id: Int?,
         @SerializedName("name") val name: String?,
-        @SerializedName("cod") val cod: Int?
-)
-
-data class Weather(
-        @SerializedName("id") val id: Int?,
-        @SerializedName("main") val main: String?,
-        @SerializedName("description") val description: String?,
-        @SerializedName("icon") val icon: String?
-)
-
-data class Rain(
-        @SerializedName("3h") val h: Double?
-)
-
-data class Wind(
-        @SerializedName("speed") val speed: Double?,
-        @SerializedName("deg") val deg: Double?
-)
-
-data class Coord(
-        @SerializedName("lon") val lon: Double?,
-        @SerializedName("lat") val lat: Double?
-)
-
-data class Sys(
-        @SerializedName("type") val type: Int?,
-        @SerializedName("id") val id: Int?,
-        @SerializedName("message") val message: Double?,
-        @SerializedName("country") val country: String?,
-        @SerializedName("sunrise") val sunrise: Int?,
-        @SerializedName("sunset") val sunset: Int?
-)
-
-data class Main(
-        @SerializedName("temp") val temp: Double?,
-        @SerializedName("pressure") val pressure: Int?,
-        @SerializedName("humidity") val humidity: Int?,
-        @SerializedName("temp_min") val tempMin: Double?,
-        @SerializedName("temp_max") val tempMax: Double?
-)
-
-data class Clouds(
-        @SerializedName("all") val all: Int?
-)
+        @SerializedName("cod") val cod: Int?)

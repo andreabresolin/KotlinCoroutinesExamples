@@ -14,13 +14,10 @@
  *  limitations under the License.
  */
 
-package andreabresolin.kotlincoroutinesexamples.app.model
+package andreabresolin.kotlincoroutinesexamples.forecast.di
 
-sealed class CityWeather
-data class LoadedCityWeather(
-        val city: City,
-        val description: String,
-        val temperature: Double,
-        val icon: String?) : CityWeather()
-object LoadingCityWeather : CityWeather()
-object UnknownCityWeather : CityWeather()
+import dagger.Module
+
+@Module
+class ForecastModule {
+}

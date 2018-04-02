@@ -14,13 +14,15 @@
  *  limitations under the License.
  */
 
-package andreabresolin.kotlincoroutinesexamples.app.model
+package andreabresolin.kotlincoroutinesexamples.app.network.model
 
-sealed class CityWeather
-data class LoadedCityWeather(
-        val city: City,
-        val description: String,
-        val temperature: Double,
-        val icon: String?) : CityWeather()
-object LoadingCityWeather : CityWeather()
-object UnknownCityWeather : CityWeather()
+import com.google.gson.annotations.SerializedName
+
+data class Sys(
+        @SerializedName("type") val type: Int?,
+        @SerializedName("id") val id: Int?,
+        @SerializedName("message") val message: Double?,
+        @SerializedName("country") val country: String?,
+        @SerializedName("sunrise") val sunrise: Int?,
+        @SerializedName("sunset") val sunset: Int?,
+        @SerializedName("pod") val pod: String?)

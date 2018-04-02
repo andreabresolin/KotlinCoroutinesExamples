@@ -17,6 +17,7 @@
 package andreabresolin.kotlincoroutinesexamples.home.domain
 
 import andreabresolin.kotlincoroutinesexamples.app.domain.BaseUseCase
+import andreabresolin.kotlincoroutinesexamples.app.model.City
 import andreabresolin.kotlincoroutinesexamples.app.model.CityWeather
 import andreabresolin.kotlincoroutinesexamples.app.model.LoadedCityWeather
 import andreabresolin.kotlincoroutinesexamples.app.network.model.CurrentWeather
@@ -24,26 +25,27 @@ import andreabresolin.kotlincoroutinesexamples.app.repository.WeatherRepository
 import kotlinx.coroutines.experimental.Deferred
 import kotlinx.coroutines.experimental.delay
 import java.util.*
+import javax.inject.Inject
 
-class GetWeatherUseCase constructor(
-        private val weatherRepository: WeatherRepository) : BaseUseCase() {
+class GetWeatherUseCase
+@Inject constructor(private val weatherRepository: WeatherRepository) : BaseUseCase() {
 
     class GetWeatherException constructor(val cityAndCountry: String) : RuntimeException()
 
-    suspend fun execute(cityAndCountry: String): CityWeather {
-       val weather: CurrentWeather? = asyncAwait {
+    suspend fun execute(city: City): CityWeather {
+        val weather: CurrentWeather? = asyncAwait {
             simulateSlowNetwork()
-            weatherRepository.getCurrentWeather(cityAndCountry)
+            weatherRepository.getCurrentWeather(city.cityAndCountry)
         }
 
-        return mapCurrentWeatherToCityWeather(weather, cityAndCountry)
+        return mapCurrentWeatherToCityWeather(weather, city)
     }
 
-    suspend fun execute(citiesAndCountries: List<String>): List<CityWeather> {
-        return citiesAndCountries
-                .map { getCityWeather(it) }
+    suspend fun execute(cities: List<City>): List<CityWeather> {
+        return cities
+                .map { getCityWeather(it.cityAndCountry) }
                 .mapIndexed { index, deferred ->
-                    mapCurrentWeatherToCityWeather(deferred.await(), citiesAndCountries[index])
+                    mapCurrentWeatherToCityWeather(deferred.await(), cities[index])
                 }
     }
 
@@ -59,11 +61,14 @@ class GetWeatherUseCase constructor(
         delay(1000 + Random().nextInt(4000).toLong())
     }
 
-    private fun mapCurrentWeatherToCityWeather(weather: CurrentWeather?, cityAndCountry: String): CityWeather {
+    private fun mapCurrentWeatherToCityWeather(
+            weather: CurrentWeather?,
+            city: City): CityWeather {
+
         return LoadedCityWeather(
-                weather?.name ?: throw GetWeatherException(cityAndCountry),
-                weather.weather?.get(0)?.description ?: throw GetWeatherException(cityAndCountry),
-                weather.main?.temp ?: throw GetWeatherException(cityAndCountry),
-                weather.weather.get(0)?.icon)
+                city,
+                weather?.weather?.get(0)?.description ?: throw GetWeatherException(city.cityAndCountry),
+                weather.main?.temp ?: throw GetWeatherException(city.cityAndCountry),
+                weather.weather[0].icon)
     }
 }

@@ -17,7 +17,9 @@
 package andreabresolin.kotlincoroutinesexamples.home.view
 
 import andreabresolin.kotlincoroutinesexamples.R
+import andreabresolin.kotlincoroutinesexamples.app.model.City
 import andreabresolin.kotlincoroutinesexamples.app.presenter.StickyContinuation
+import andreabresolin.kotlincoroutinesexamples.forecast.view.ForecastActivity
 import andreabresolin.kotlincoroutinesexamples.home.di.HomeComponent
 import andreabresolin.kotlincoroutinesexamples.home.presenter.HomePresenter
 import andreabresolin.kotlincoroutinesexamples.home.presenter.HomePresenterImpl
@@ -62,7 +64,18 @@ class HomeActivity : AppCompatActivity(), HomeView {
     }
 
     private fun setupCitiesWeatherList() {
-        citiesWeatherList.adapter = CitiesWeatherListAdapter(this, presenter.weather)
+        val adapter = CitiesWeatherListAdapter(this, presenter.weather)
+        adapter.setOnCitySelectedListener { city -> onCitySelected(city) }
+        citiesWeatherList.adapter = adapter
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
+        super.onRestoreInstanceState(savedInstanceState)
+
+        if (!presenter.isWeatherLoaded()) {
+            // Default behavior to load the weather info
+            presenter.getWeatherParallel()
+        }
     }
 
     override fun onDestroy() {
@@ -71,6 +84,10 @@ class HomeActivity : AppCompatActivity(), HomeView {
         }
 
         super.onDestroy()
+    }
+
+    private fun onCitySelected(city: City) {
+        ForecastActivity.start(this, city)
     }
 
     override fun updateAllCities() {
@@ -103,8 +120,8 @@ class HomeActivity : AppCompatActivity(), HomeView {
         lateinit var dialog: AlertDialog
 
         dialog = AlertDialog.Builder(this)
-                .setTitle(R.string.retrieval_error_dialog_title)
-                .setMessage(R.string.retrieval_error_dialog_message)
+                .setTitle(R.string.weather_retrieval_error_dialog_title)
+                .setMessage(R.string.weather_retrieval_error_dialog_message)
                 .setPositiveButton(R.string.ok_dialog_button, {
                     dialogInterface: DialogInterface, _: Int ->
                     dialogInterface.dismiss()
@@ -121,8 +138,8 @@ class HomeActivity : AppCompatActivity(), HomeView {
         lateinit var dialog: AlertDialog
 
         dialog = AlertDialog.Builder(this)
-                .setTitle(R.string.retrieval_error_dialog_title)
-                .setMessage(getString(R.string.retrieval_error_dialog_message_with_place, place))
+                .setTitle(R.string.weather_retrieval_error_dialog_title)
+                .setMessage(getString(R.string.weather_retrieval_error_dialog_message_with_place, place))
                 .setPositiveButton(R.string.ok_dialog_button, {
                     dialogInterface: DialogInterface, _: Int ->
                     dialogInterface.dismiss()
@@ -138,11 +155,12 @@ class HomeActivity : AppCompatActivity(), HomeView {
     override fun displayGetWeatherErrorWithRetry(
             continuation: StickyContinuation<ErrorDialogResponse>,
             place: String) {
+
         lateinit var dialog: AlertDialog
 
         dialog = AlertDialog.Builder(this)
-                .setTitle(R.string.retrieval_error_dialog_title)
-                .setMessage(getString(R.string.retrieval_error_dialog_message_with_retry, place))
+                .setTitle(R.string.weather_retrieval_error_dialog_title)
+                .setMessage(getString(R.string.weather_retrieval_error_dialog_message_with_retry, place))
                 .setPositiveButton(R.string.retry_dialog_button, { dialogInterface: DialogInterface, _: Int ->
                     dialogInterface.dismiss()
                     continuation.resume(ErrorDialogResponse.RETRY)

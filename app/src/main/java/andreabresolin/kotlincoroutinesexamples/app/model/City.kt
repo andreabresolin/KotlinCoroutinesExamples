@@ -1,5 +1,5 @@
 /*
- *  Copyright 2017 Andrea Bresolin
+ *  Copyright 2018 Andrea Bresolin
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,6 +16,13 @@
 
 package andreabresolin.kotlincoroutinesexamples.app.model
 
-data class City(val cityName: String, val country: String) {
-    val cityAndCountry: String get() = cityName + "," + country
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
+
+@Parcelize
+data class City(
+        val cityName: String,
+        val country: String): Parcelable {
+
+    val cityAndCountry: String get() = "$cityName,$country"
 }

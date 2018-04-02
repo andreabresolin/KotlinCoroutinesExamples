@@ -1,5 +1,5 @@
 /*
- *  Copyright 2017 Andrea Bresolin
+ *  Copyright 2018 Andrea Bresolin
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,9 +20,10 @@ import andreabresolin.kotlincoroutinesexamples.app.domain.BaseUseCase
 import andreabresolin.kotlincoroutinesexamples.app.network.model.CurrentWeather
 import andreabresolin.kotlincoroutinesexamples.app.repository.WeatherRepository
 import kotlinx.coroutines.experimental.Deferred
+import javax.inject.Inject
 
-class GetAverageTemperatureUseCase constructor(
-        private val weatherRepository: WeatherRepository) : BaseUseCase() {
+class GetAverageTemperatureUseCase
+@Inject constructor(private val weatherRepository: WeatherRepository) : BaseUseCase() {
 
     suspend fun execute(citiesAndCountries: List<String>): Double {
         return citiesAndCountries
