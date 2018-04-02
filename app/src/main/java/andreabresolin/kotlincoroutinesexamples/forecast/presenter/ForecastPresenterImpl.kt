@@ -81,13 +81,12 @@ class ForecastPresenterImpl : BasePresenterImpl<ForecastView>(), ForecastPresent
             daysForecast.clear()
 
             view().updateAllForecasts()
-            view().displayContentState()
+            view().displayErrorState()
 
             val place = (error as? GetForecastException)?.cityAndCountry
 
-            when (view().stickySuspension<ErrorDialogResponse> { displayLoadForecastsErrorWithRetry(it, place) }) {
-                RETRY -> loadForecasts(city)
-                CANCEL -> view().displayErrorState()
+            if (view().stickySuspension<ErrorDialogResponse> { displayLoadForecastsErrorWithRetry(it, place) } == RETRY) {
+                loadForecasts(city)
             }
         })
     }

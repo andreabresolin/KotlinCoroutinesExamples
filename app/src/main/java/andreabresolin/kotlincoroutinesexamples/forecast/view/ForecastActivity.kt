@@ -43,6 +43,8 @@ class ForecastActivity : AppCompatActivity(), ForecastView {
 
         private const val CITY_EXTRA = "CITY_EXTRA"
 
+        private const val DISPLAYED_CHILD_STATE_KEY = "DISPLAYED_CHILD_STATE_KEY"
+
         fun start(context: Context, city: City) {
             val intent = Intent(context, ForecastActivity::class.java)
             intent.putExtra(CITY_EXTRA, city)
@@ -63,7 +65,7 @@ class ForecastActivity : AppCompatActivity(), ForecastView {
         intent.getParcelableExtra<City>(CITY_EXTRA)?.let {
             title = getString(R.string.forecast_activity_title, it.cityName)
 
-            if (presenter.forecasts.isEmpty()) {
+            if (presenter.forecasts.isEmpty() && savedInstanceState == null) {
                 loadForecasts(it)
             }
         }
@@ -85,6 +87,24 @@ class ForecastActivity : AppCompatActivity(), ForecastView {
 
     private fun loadForecasts(city: City) {
         presenter.loadForecasts(city)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle?) {
+        outState?.putInt(DISPLAYED_CHILD_STATE_KEY, viewFlipper.displayedChild)
+
+        super.onSaveInstanceState(outState)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
+        super.onRestoreInstanceState(savedInstanceState)
+
+        viewFlipper.displayedChild = savedInstanceState?.getInt(DISPLAYED_CHILD_STATE_KEY) ?: CONTENT_CHILD_INDEX
+
+        intent.getParcelableExtra<City>(CITY_EXTRA)?.let {
+            if (presenter.forecasts.isEmpty() && viewFlipper.displayedChild == CONTENT_CHILD_INDEX) {
+                loadForecasts(it)
+            }
+        }
     }
 
     override fun onDestroy() {
