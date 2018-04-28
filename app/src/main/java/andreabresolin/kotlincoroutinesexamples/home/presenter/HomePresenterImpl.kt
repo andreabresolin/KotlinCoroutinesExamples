@@ -17,12 +17,12 @@
 package andreabresolin.kotlincoroutinesexamples.home.presenter
 
 import andreabresolin.kotlincoroutinesexamples.app.App
+import andreabresolin.kotlincoroutinesexamples.app.coroutines.CoroutinesManager
 import andreabresolin.kotlincoroutinesexamples.app.model.City
 import andreabresolin.kotlincoroutinesexamples.app.model.CityWeather
 import andreabresolin.kotlincoroutinesexamples.app.model.LoadingCityWeather
 import andreabresolin.kotlincoroutinesexamples.app.model.UnknownCityWeather
 import andreabresolin.kotlincoroutinesexamples.app.presenter.BasePresenterImpl
-import andreabresolin.kotlincoroutinesexamples.home.di.HomeComponent
 import andreabresolin.kotlincoroutinesexamples.home.di.HomeModule
 import andreabresolin.kotlincoroutinesexamples.home.domain.GetAverageTemperatureUseCase
 import andreabresolin.kotlincoroutinesexamples.home.domain.GetWeatherUseCase
@@ -33,7 +33,8 @@ import andreabresolin.kotlincoroutinesexamples.home.view.HomeView.ErrorDialogRes
 import andreabresolin.kotlincoroutinesexamples.home.view.HomeView.ErrorDialogResponse.RETRY
 import javax.inject.Inject
 
-class HomePresenterImpl : BasePresenterImpl<HomeView>(), HomePresenter<HomeView> {
+class HomePresenterImpl
+constructor(coroutinesManager: CoroutinesManager) : BasePresenterImpl<HomeView>(coroutinesManager), HomePresenter<HomeView> {
 
     companion object {
         private val CITIES: List<City> = listOf(
@@ -48,7 +49,6 @@ class HomePresenterImpl : BasePresenterImpl<HomeView>(), HomePresenter<HomeView>
     internal lateinit var getAverageTemperatureUseCase: GetAverageTemperatureUseCase
 
     private val citiesWeather: MutableList<CityWeather> = mutableListOf()
-    private var homeComponent: HomeComponent? = null
 
     init {
         injectDependencies()
@@ -56,15 +56,7 @@ class HomePresenterImpl : BasePresenterImpl<HomeView>(), HomePresenter<HomeView>
     }
 
     override fun onInjectDependencies() {
-        homeComponent = App.get()
-                .getAppComponent()
-                ?.plus(HomeModule())
-
-        homeComponent?.inject(this)
-    }
-
-    override fun onViewAttached(view: HomeView) {
-        homeComponent?.let { view.injectDependencies(it) }
+        App.get().getAppComponent()?.plus(HomeModule())?.inject(this)
     }
 
     override fun cleanup() {
@@ -89,42 +81,38 @@ class HomePresenterImpl : BasePresenterImpl<HomeView>(), HomePresenter<HomeView>
         view().updateCity(cityIndex)
     }
 
-    override fun getWeatherSequential() {
-        launchAsyncTryCatch({
-            CITIES.forEachIndexed { index, city ->
-                updateCityWeather(index, LoadingCityWeather)
-                updateCityWeather(index, getWeatherUseCase.execute(city))
-            }
-        }, {
-            when (it) {
-                is GetWeatherException -> view().displayGetWeatherError(it.cityAndCountry)
-                else -> view().displayGetWeatherError()
-            }
-        })
-    }
+    override fun getWeatherSequential() = launchOnUITryCatch({
+        CITIES.forEachIndexed { index, city ->
+            updateCityWeather(index, LoadingCityWeather)
+            updateCityWeather(index, getWeatherUseCase.execute(city))
+        }
+    }, {
+        when (it) {
+            is GetWeatherException -> view().displayGetWeatherError(it.cityAndCountry)
+            else -> view().displayGetWeatherError()
+        }
+    })
 
-    override fun getWeatherParallel() {
-        launchAsyncTryCatch({
-            CITIES.indices.forEach { updateCityWeather(it, LoadingCityWeather) }
+    override fun getWeatherParallel() = launchOnUITryCatch({
+        CITIES.indices.forEach { updateCityWeather(it, LoadingCityWeather) }
 
-            val citiesWeather: List<CityWeather> = getWeatherUseCase.execute(CITIES)
+        val citiesWeather: List<CityWeather> = getWeatherUseCase.execute(CITIES)
 
-            citiesWeather.forEachIndexed { index, cityWeather -> updateCityWeather(index, cityWeather) }
-        }, {
-            when (it) {
-                is GetWeatherException -> view().displayGetWeatherError(it.cityAndCountry)
-                else -> view().displayGetWeatherError()
-            }
-        })
-    }
+        citiesWeather.forEachIndexed { index, cityWeather -> updateCityWeather(index, cityWeather) }
+    }, {
+        when (it) {
+            is GetWeatherException -> view().displayGetWeatherError(it.cityAndCountry)
+            else -> view().displayGetWeatherError()
+        }
+    })
 
     override fun getWeatherIndependent() {
-        launchAsync {
+        launchOnUI {
             CITIES.indices.forEach { updateCityWeather(it, LoadingCityWeather) }
         }
 
         CITIES.forEachIndexed { index, city ->
-            launchAsyncTryCatch({
+            launchOnUITryCatch({
                 updateCityWeather(index, LoadingCityWeather)
                 updateCityWeather(index, getWeatherUseCase.execute(city))
             }, {
@@ -138,7 +126,7 @@ class HomePresenterImpl : BasePresenterImpl<HomeView>(), HomePresenter<HomeView>
     }
 
     private fun getWeatherWithRetry(city: City) {
-        launchAsyncTryCatch ({
+        launchOnUITryCatch ({
             updateCityWeather(1, LoadingCityWeather)
             updateCityWeather(1, getWeatherUseCase.execute(city))
         }, {
@@ -157,11 +145,9 @@ class HomePresenterImpl : BasePresenterImpl<HomeView>(), HomePresenter<HomeView>
         })
     }
 
-    override fun getAverageTemperature() {
-        launchAsync {
-            val citiesAndCountries: List<String> = CITIES.map { it.cityAndCountry }
-            val averageTemperature: Double = getAverageTemperatureUseCase.execute(citiesAndCountries)
-            view().displayAverageTemperature(averageTemperature)
-        }
+    override fun getAverageTemperature() = launchOnUI {
+        val citiesAndCountries: List<String> = CITIES.map { it.cityAndCountry }
+        val averageTemperature: Double = getAverageTemperatureUseCase.execute(citiesAndCountries)
+        view().displayAverageTemperature(averageTemperature)
     }
 }

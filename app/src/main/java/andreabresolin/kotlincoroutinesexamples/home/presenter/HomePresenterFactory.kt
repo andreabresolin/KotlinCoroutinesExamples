@@ -14,11 +14,17 @@
  *  limitations under the License.
  */
 
-package andreabresolin.kotlincoroutinesexamples.app.di.scopes
+package andreabresolin.kotlincoroutinesexamples.home.presenter
 
-import javax.inject.Scope
-import kotlin.annotation.AnnotationRetention.RUNTIME
+import andreabresolin.kotlincoroutinesexamples.app.coroutines.CoroutinesManager
+import android.arch.lifecycle.ViewModel
+import android.arch.lifecycle.ViewModelProvider
+import javax.inject.Inject
 
-@Scope
-@Retention(RUNTIME)
-annotation class PerPresenter
+class HomePresenterFactory
+@Inject constructor(private val coroutinesManager: CoroutinesManager) : ViewModelProvider.Factory {
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+        return HomePresenterImpl(coroutinesManager) as T
+    }
+}

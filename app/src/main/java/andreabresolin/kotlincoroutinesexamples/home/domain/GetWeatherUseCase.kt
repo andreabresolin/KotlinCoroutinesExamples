@@ -16,6 +16,7 @@
 
 package andreabresolin.kotlincoroutinesexamples.home.domain
 
+import andreabresolin.kotlincoroutinesexamples.app.coroutines.AsyncTasksManager
 import andreabresolin.kotlincoroutinesexamples.app.domain.BaseUseCase
 import andreabresolin.kotlincoroutinesexamples.app.model.City
 import andreabresolin.kotlincoroutinesexamples.app.model.CityWeather
@@ -28,7 +29,7 @@ import java.util.*
 import javax.inject.Inject
 
 class GetWeatherUseCase
-@Inject constructor(private val weatherRepository: WeatherRepository) : BaseUseCase() {
+@Inject constructor(asyncTasksManager: AsyncTasksManager, private val weatherRepository: WeatherRepository) : BaseUseCase(asyncTasksManager) {
 
     class GetWeatherException constructor(val cityAndCountry: String) : RuntimeException()
 
@@ -49,11 +50,9 @@ class GetWeatherUseCase
                 }
     }
 
-    private suspend fun getCityWeather(cityAndCountry: String): Deferred<CurrentWeather?> {
-        return async {
-            simulateSlowNetwork()
-            weatherRepository.getCurrentWeather(cityAndCountry)
-        }
+    private suspend fun getCityWeather(cityAndCountry: String): Deferred<CurrentWeather?> = async {
+        simulateSlowNetwork()
+        weatherRepository.getCurrentWeather(cityAndCountry)
     }
 
     private suspend fun simulateSlowNetwork() {
@@ -61,10 +60,7 @@ class GetWeatherUseCase
         delay(1000 + Random().nextInt(4000).toLong())
     }
 
-    private fun mapCurrentWeatherToCityWeather(
-            weather: CurrentWeather?,
-            city: City): CityWeather {
-
+    private fun mapCurrentWeatherToCityWeather(weather: CurrentWeather?, city: City): CityWeather {
         return LoadedCityWeather(
                 city,
                 weather?.weather?.get(0)?.description ?: throw GetWeatherException(city.cityAndCountry),

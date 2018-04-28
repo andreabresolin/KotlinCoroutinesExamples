@@ -17,14 +17,12 @@
 package andreabresolin.kotlincoroutinesexamples.home.view
 
 import andreabresolin.kotlincoroutinesexamples.app.presenter.StickyContinuation
-import andreabresolin.kotlincoroutinesexamples.home.di.HomeComponent
 
 interface HomeView {
     enum class ErrorDialogResponse {
         RETRY, CANCEL
     }
 
-    fun injectDependencies(homeComponent: HomeComponent)
     fun updateAllCities()
     fun updateCity(cityIndex: Int)
     fun displayAverageTemperature(temperature: Double)

@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package andreabresolin.kotlincoroutinesexamples.app.utils
+package andreabresolin.kotlincoroutinesexamples.app.coroutines
 
 import kotlinx.coroutines.experimental.CancellationException
 import kotlinx.coroutines.experimental.CoroutineScope

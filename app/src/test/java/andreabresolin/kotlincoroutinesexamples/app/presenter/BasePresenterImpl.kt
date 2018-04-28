@@ -16,15 +16,12 @@
 
 package andreabresolin.kotlincoroutinesexamples.app.presenter
 
-import andreabresolin.kotlincoroutinesexamples.app.utils.CoroutinesUtils.Companion.tryCatch
-import andreabresolin.kotlincoroutinesexamples.app.utils.CoroutinesUtils.Companion.tryCatchFinally
-import andreabresolin.kotlincoroutinesexamples.app.utils.CoroutinesUtils.Companion.tryFinally
+import andreabresolin.kotlincoroutinesexamples.app.coroutines.CoroutinesManager
 import andreabresolin.kotlincoroutinesexamples.testutils.KotlinTestUtils.Companion.mockContinuation
 import android.arch.lifecycle.Lifecycle
-import kotlinx.coroutines.experimental.CoroutineScope
-import kotlinx.coroutines.experimental.runBlocking
 
-abstract class BasePresenterImpl<View> : BasePresenter<View> {
+abstract class BasePresenterImpl<View>
+constructor(coroutinesManager: CoroutinesManager): CoroutinesManager by coroutinesManager, BasePresenter<View> {
 
     private var mockView: View? = null
 
@@ -62,9 +59,7 @@ abstract class BasePresenterImpl<View> : BasePresenter<View> {
     suspend fun <ReturnType> View.stickySuspension(
             block: View.(StickyContinuation<ReturnType>) -> Unit): ReturnType {
         val stickyContinuation: StickyContinuation<ReturnType> =
-                StickyContinuation<ReturnType>(
-                        mockContinuation(),
-                        this@BasePresenterImpl)
+                StickyContinuation(mockContinuation(), this@BasePresenterImpl)
 
         block(stickyContinuation)
 
@@ -75,37 +70,7 @@ abstract class BasePresenterImpl<View> : BasePresenter<View> {
         return stickyContinuation.resumeValue as ReturnType
     }
 
-    protected fun launchAsync(block: suspend CoroutineScope.() -> Unit) {
-        runBlocking { block() }
-    }
-
-    protected fun launchAsyncTryCatch(
-            tryBlock: suspend CoroutineScope.() -> Unit,
-            catchBlock: suspend CoroutineScope.(Throwable) -> Unit,
-            handleCancellationExceptionManually: Boolean = false) {
-        launchAsync { tryCatch(tryBlock, catchBlock, handleCancellationExceptionManually) }
-    }
-
-    protected fun launchAsyncTryCatchFinally(
-            tryBlock: suspend CoroutineScope.() -> Unit,
-            catchBlock: suspend CoroutineScope.(Throwable) -> Unit,
-            finallyBlock: suspend CoroutineScope.() -> Unit,
-            handleCancellationExceptionManually: Boolean = false) {
-        launchAsync { tryCatchFinally(tryBlock, catchBlock, finallyBlock, handleCancellationExceptionManually) }
-    }
-
-    protected fun launchAsyncTryFinally(
-            tryBlock: suspend CoroutineScope.() -> Unit,
-            finallyBlock: suspend CoroutineScope.() -> Unit,
-            suppressCancellationException: Boolean = false) {
-        launchAsync { tryFinally(tryBlock, finallyBlock, suppressCancellationException) }
-    }
-
-    protected fun cancelAllAsync() {
-        // Nothing to do
-    }
-
     open fun cleanup() {
-        // Nothing to do
+        cancelAllCoroutines()
     }
 }

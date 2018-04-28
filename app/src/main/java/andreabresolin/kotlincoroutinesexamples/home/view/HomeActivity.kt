@@ -17,12 +17,14 @@
 package andreabresolin.kotlincoroutinesexamples.home.view
 
 import andreabresolin.kotlincoroutinesexamples.R
+import andreabresolin.kotlincoroutinesexamples.app.App
 import andreabresolin.kotlincoroutinesexamples.app.model.City
 import andreabresolin.kotlincoroutinesexamples.app.presenter.StickyContinuation
 import andreabresolin.kotlincoroutinesexamples.forecast.view.ForecastActivity
-import andreabresolin.kotlincoroutinesexamples.home.di.HomeComponent
+import andreabresolin.kotlincoroutinesexamples.home.di.HomeModule
 import andreabresolin.kotlincoroutinesexamples.home.presenter.HomePresenter
 import andreabresolin.kotlincoroutinesexamples.home.presenter.HomePresenterImpl
+import andreabresolin.kotlincoroutinesexamples.home.presenter.HomePresenterFactory
 import andreabresolin.kotlincoroutinesexamples.home.view.HomeView.ErrorDialogResponse
 import android.arch.lifecycle.ViewModelProviders
 import android.content.DialogInterface
@@ -30,8 +32,12 @@ import android.os.Bundle
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_home.*
+import javax.inject.Inject
 
 class HomeActivity : AppCompatActivity(), HomeView {
+
+    @Inject
+    internal lateinit var presenterFactory: HomePresenterFactory
 
     private lateinit var presenter: HomePresenter<HomeView>
     private val openDialogs: MutableList<AlertDialog> = mutableListOf()
@@ -40,22 +46,23 @@ class HomeActivity : AppCompatActivity(), HomeView {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
-        setupPresenter()
-        setupListeners()
-        setupCitiesWeatherList()
+        injectDependencies()
+        setUpPresenter()
+        setUpListeners()
+        setUpCitiesWeatherList()
     }
 
-    override fun injectDependencies(homeComponent: HomeComponent) {
-        homeComponent.inject(this)
+    private fun injectDependencies() {
+        App.get().getAppComponent()?.plus(HomeModule())?.inject(this)
     }
 
-    private fun setupPresenter() {
-        presenter = ViewModelProviders.of(this).get(HomePresenterImpl::class.java)
+    private fun setUpPresenter() {
+        presenter = ViewModelProviders.of(this, presenterFactory).get(HomePresenterImpl::class.java)
         presenter.attachView(this, lifecycle)
         lifecycle.addObserver(presenter)
     }
 
-    private fun setupListeners() {
+    private fun setUpListeners() {
         getWeatherSequentialButton.setOnClickListener { presenter.getWeatherSequential() }
         getWeatherParallelButton.setOnClickListener { presenter.getWeatherParallel() }
         getWeatherIndependentButton.setOnClickListener { presenter.getWeatherIndependent() }
@@ -63,7 +70,7 @@ class HomeActivity : AppCompatActivity(), HomeView {
         getWeatherWithRetryButton.setOnClickListener { presenter.getWeatherWithRetry() }
     }
 
-    private fun setupCitiesWeatherList() {
+    private fun setUpCitiesWeatherList() {
         val adapter = CitiesWeatherListAdapter(this, presenter.weather)
         adapter.setOnCitySelectedListener { city -> onCitySelected(city) }
         citiesWeatherList.adapter = adapter

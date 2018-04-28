@@ -16,12 +16,12 @@
 
 package andreabresolin.kotlincoroutinesexamples.home.di
 
-import andreabresolin.kotlincoroutinesexamples.app.di.scopes.PerPresenter
+import andreabresolin.kotlincoroutinesexamples.app.di.scopes.PerScreen
 import andreabresolin.kotlincoroutinesexamples.home.presenter.HomePresenterImpl
 import andreabresolin.kotlincoroutinesexamples.home.view.HomeActivity
 import dagger.Subcomponent
 
-@PerPresenter
+@PerScreen
 @Subcomponent(modules = [(HomeModule::class)])
 interface HomeComponent {
     fun inject(homePresenter: HomePresenterImpl)

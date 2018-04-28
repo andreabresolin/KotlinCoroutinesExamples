@@ -17,10 +17,10 @@
 package andreabresolin.kotlincoroutinesexamples.forecast.presenter
 
 import andreabresolin.kotlincoroutinesexamples.app.App
+import andreabresolin.kotlincoroutinesexamples.app.coroutines.CoroutinesManager
 import andreabresolin.kotlincoroutinesexamples.app.model.City
 import andreabresolin.kotlincoroutinesexamples.app.model.DayForecast
 import andreabresolin.kotlincoroutinesexamples.app.presenter.BasePresenterImpl
-import andreabresolin.kotlincoroutinesexamples.forecast.di.ForecastComponent
 import andreabresolin.kotlincoroutinesexamples.forecast.di.ForecastModule
 import andreabresolin.kotlincoroutinesexamples.forecast.domain.GetForecastUseCase
 import andreabresolin.kotlincoroutinesexamples.forecast.domain.GetForecastUseCase.GetForecastException
@@ -29,28 +29,20 @@ import andreabresolin.kotlincoroutinesexamples.forecast.view.ForecastView.ErrorD
 import andreabresolin.kotlincoroutinesexamples.forecast.view.ForecastView.ErrorDialogResponse.RETRY
 import javax.inject.Inject
 
-class ForecastPresenterImpl : BasePresenterImpl<ForecastView>(), ForecastPresenter<ForecastView> {
+class ForecastPresenterImpl
+constructor(coroutinesManager: CoroutinesManager) : BasePresenterImpl<ForecastView>(coroutinesManager), ForecastPresenter<ForecastView> {
 
     @Inject
     internal lateinit var getForecastUseCase: GetForecastUseCase
 
     private val daysForecast: MutableList<DayForecast> = mutableListOf()
-    private var forecastComponent: ForecastComponent? = null
 
     init {
         injectDependencies()
     }
 
     override fun onInjectDependencies() {
-        forecastComponent = App.get()
-                .getAppComponent()
-                ?.plus(ForecastModule())
-
-        forecastComponent?.inject(this)
-    }
-
-    override fun onViewAttached(view: ForecastView) {
-        forecastComponent?.let { view.injectDependencies(it) }
+        App.get().getAppComponent()?.plus(ForecastModule())?.inject(this)
     }
 
     override fun cleanup() {
@@ -62,7 +54,7 @@ class ForecastPresenterImpl : BasePresenterImpl<ForecastView>(), ForecastPresent
         get() = daysForecast
 
     override fun loadForecasts(city: City) {
-        launchAsyncTryCatch ({
+        launchOnUITryCatch ({
             view().displayLoadingState()
 
             val forecasts = getForecastUseCase.execute(city.cityAndCountry)

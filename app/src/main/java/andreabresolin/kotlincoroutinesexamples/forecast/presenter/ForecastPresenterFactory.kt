@@ -14,16 +14,17 @@
  *  limitations under the License.
  */
 
-package andreabresolin.kotlincoroutinesexamples.forecast.di
+package andreabresolin.kotlincoroutinesexamples.forecast.presenter
 
-import andreabresolin.kotlincoroutinesexamples.app.di.scopes.PerScreen
-import andreabresolin.kotlincoroutinesexamples.forecast.presenter.ForecastPresenterImpl
-import andreabresolin.kotlincoroutinesexamples.forecast.view.ForecastActivity
-import dagger.Subcomponent
+import andreabresolin.kotlincoroutinesexamples.app.coroutines.CoroutinesManager
+import android.arch.lifecycle.ViewModel
+import android.arch.lifecycle.ViewModelProvider
+import javax.inject.Inject
 
-@PerScreen
-@Subcomponent(modules = [(ForecastModule::class)])
-interface ForecastComponent {
-    fun inject(forecastPresenter: ForecastPresenterImpl)
-    fun inject(forecastActivity: ForecastActivity)
+class ForecastPresenterFactory
+@Inject constructor(private val coroutinesManager: CoroutinesManager) : ViewModelProvider.Factory {
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+        return ForecastPresenterImpl(coroutinesManager) as T
+    }
 }

@@ -14,16 +14,18 @@
  *  limitations under the License.
  */
 
-package andreabresolin.kotlincoroutinesexamples.forecast.di
+package andreabresolin.kotlincoroutinesexamples.app.coroutines
 
-import andreabresolin.kotlincoroutinesexamples.app.di.scopes.PerScreen
-import andreabresolin.kotlincoroutinesexamples.forecast.presenter.ForecastPresenterImpl
-import andreabresolin.kotlincoroutinesexamples.forecast.view.ForecastActivity
-import dagger.Subcomponent
+import kotlinx.coroutines.experimental.CoroutineScope
+import kotlinx.coroutines.experimental.Deferred
 
-@PerScreen
-@Subcomponent(modules = [(ForecastModule::class)])
-interface ForecastComponent {
-    fun inject(forecastPresenter: ForecastPresenterImpl)
-    fun inject(forecastActivity: ForecastActivity)
+interface AsyncTasksManager {
+
+    suspend fun <T> async(block: suspend CoroutineScope.() -> T): Deferred<T>
+
+    suspend fun <T> asyncAwait(block: suspend CoroutineScope.() -> T): T
+
+    fun cancelAllAsync()
+
+    fun cleanup()
 }

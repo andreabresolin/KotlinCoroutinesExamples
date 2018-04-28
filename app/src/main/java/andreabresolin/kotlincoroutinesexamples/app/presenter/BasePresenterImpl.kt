@@ -16,24 +16,17 @@
 
 package andreabresolin.kotlincoroutinesexamples.app.presenter
 
-import andreabresolin.kotlincoroutinesexamples.app.utils.CoroutinesUtils.Companion.tryCatch
-import andreabresolin.kotlincoroutinesexamples.app.utils.CoroutinesUtils.Companion.tryCatchFinally
-import andreabresolin.kotlincoroutinesexamples.app.utils.CoroutinesUtils.Companion.tryFinally
+import andreabresolin.kotlincoroutinesexamples.app.coroutines.CoroutinesManager
 import android.arch.lifecycle.Lifecycle
 import android.arch.lifecycle.OnLifecycleEvent
 import android.arch.lifecycle.ViewModel
 import android.support.annotation.CallSuper
-import kotlinx.coroutines.experimental.CoroutineScope
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.launch
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.experimental.Continuation
 import kotlin.coroutines.experimental.suspendCoroutine
 
-abstract class BasePresenterImpl<View> : ViewModel(), BasePresenter<View> {
-
-    private val asyncJobs: MutableList<Job> = mutableListOf()
+abstract class BasePresenterImpl<View>
+constructor(coroutinesManager: CoroutinesManager) : ViewModel(), CoroutinesManager by coroutinesManager, BasePresenter<View> {
 
     private var viewInstance: View? = null
     private var viewLifecycle: Lifecycle? = null
@@ -152,7 +145,7 @@ abstract class BasePresenterImpl<View> : ViewModel(), BasePresenter<View> {
     @Suppress("UNCHECKED_CAST")
     suspend fun <ReturnType> View.stickySuspension(
             block: View.(StickyContinuation<ReturnType>) -> Unit): ReturnType {
-        return suspendCoroutine<ReturnType> { continuation ->
+        return suspendCoroutine { continuation ->
             val stickyContinuation: StickyContinuation<ReturnType> = StickyContinuation(continuation, this@BasePresenterImpl)
             addStickyContinuation(stickyContinuation, block as View.(StickyContinuation<*>) -> Unit)
             block(stickyContinuation)
@@ -161,52 +154,7 @@ abstract class BasePresenterImpl<View> : ViewModel(), BasePresenter<View> {
 
     @CallSuper
     @Synchronized
-    protected fun launchAsync(block: suspend CoroutineScope.() -> Unit) {
-        val job: Job = launch(UI) { block() }
-        asyncJobs.add(job)
-        job.invokeOnCompletion { asyncJobs.remove(job) }
-    }
-
-    @Synchronized
-    protected fun launchAsyncTryCatch(
-            tryBlock: suspend CoroutineScope.() -> Unit,
-            catchBlock: suspend CoroutineScope.(Throwable) -> Unit,
-            handleCancellationExceptionManually: Boolean = false) {
-        launchAsync { tryCatch(tryBlock, catchBlock, handleCancellationExceptionManually) }
-    }
-
-    @Synchronized
-    protected fun launchAsyncTryCatchFinally(
-            tryBlock: suspend CoroutineScope.() -> Unit,
-            catchBlock: suspend CoroutineScope.(Throwable) -> Unit,
-            finallyBlock: suspend CoroutineScope.() -> Unit,
-            handleCancellationExceptionManually: Boolean = false) {
-        launchAsync { tryCatchFinally(tryBlock, catchBlock, finallyBlock, handleCancellationExceptionManually) }
-    }
-
-    @Synchronized
-    protected fun launchAsyncTryFinally(
-            tryBlock: suspend CoroutineScope.() -> Unit,
-            finallyBlock: suspend CoroutineScope.() -> Unit,
-            suppressCancellationException: Boolean = false) {
-        launchAsync { tryFinally(tryBlock, finallyBlock, suppressCancellationException) }
-    }
-
-    @CallSuper
-    @Synchronized
-    protected fun cancelAllAsync() {
-        val asyncJobsSize = asyncJobs.size
-
-        if (asyncJobsSize > 0) {
-            for (i in asyncJobsSize - 1 downTo 0) {
-                asyncJobs[i].cancel()
-            }
-        }
-    }
-
-    @CallSuper
-    @Synchronized
     open fun cleanup() {
-        cancelAllAsync()
+        cancelAllCoroutines()
     }
 }
