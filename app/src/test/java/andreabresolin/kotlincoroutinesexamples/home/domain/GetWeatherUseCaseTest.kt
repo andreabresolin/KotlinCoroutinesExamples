@@ -16,9 +16,12 @@
 
 package andreabresolin.kotlincoroutinesexamples.home.domain
 
+import andreabresolin.kotlincoroutinesexamples.app.coroutines.AsyncTasksManager
+import andreabresolin.kotlincoroutinesexamples.app.coroutines.TestAsyncTasksManager
 import andreabresolin.kotlincoroutinesexamples.app.model.City
 import andreabresolin.kotlincoroutinesexamples.app.model.LoadedCityWeather
 import andreabresolin.kotlincoroutinesexamples.app.repository.WeatherRepository
+import andreabresolin.kotlincoroutinesexamples.testutils.BaseTest
 import andreabresolin.kotlincoroutinesexamples.testutils.KotlinTestUtils.Companion.whenever
 import andreabresolin.kotlincoroutinesexamples.testutils.Stubs
 import com.google.common.truth.Truth.assertThat
@@ -28,11 +31,14 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito.verify
+import org.mockito.Spy
 import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
-class GetWeatherUseCaseTest {
+class GetWeatherUseCaseTest : BaseTest() {
 
+    @Spy
+    private var asyncTasksManager: AsyncTasksManager = TestAsyncTasksManager()
     @Mock
     private lateinit var mockWeatherRepository: WeatherRepository
 
@@ -40,7 +46,7 @@ class GetWeatherUseCaseTest {
 
     @Before
     fun before() {
-        subject = GetWeatherUseCase(mockWeatherRepository)
+        subject = GetWeatherUseCase(asyncTasksManager, mockWeatherRepository)
     }
 
     @Test

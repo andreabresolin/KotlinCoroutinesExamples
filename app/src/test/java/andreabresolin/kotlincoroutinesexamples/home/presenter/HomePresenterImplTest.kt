@@ -50,7 +50,7 @@ import org.mockito.junit.MockitoJUnitRunner
 class HomePresenterImplTest : BaseTest() {
 
     @Spy
-    private var testCoroutinesManager: CoroutinesManager = TestCoroutinesManager()
+    private var coroutinesManager: CoroutinesManager = TestCoroutinesManager()
     @Mock
     private lateinit var mockView: HomeView
     @Mock

@@ -37,14 +37,14 @@ android {
 }
 
 ext {
-    support_library_version = '27.1.0'
-    constraint_layout_version = '1.0.2'
+    support_library_version = '27.1.1'
+    constraint_layout_version = '1.1.0'
     espresso_version = '3.0.1'
     dagger_version = '2.14.1'
     retrofit_version = '2.3.0'
     okhttp_version = '3.9.1'
     kotlin_coroutines_version = '0.22.5'
-    mockito_version = '2.15.0'
+    mockito_version = '2.18.3'
     truth_version = '0.39'
     architecture_lifecycle_compiler_version = '1.1.0'
     architecture_lifecycle_extensions_version = '1.1.1'
@@ -59,7 +59,7 @@ dependencies {
     androidTestImplementation("com.android.support.test.espresso:espresso-core:$espresso_version", {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
     // RecyclerView
     implementation "com.android.support:recyclerview-v7:$support_library_version"

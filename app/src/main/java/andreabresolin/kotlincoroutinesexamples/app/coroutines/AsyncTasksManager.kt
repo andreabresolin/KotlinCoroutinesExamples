@@ -14,28 +14,18 @@
  *  limitations under the License.
  */
 
-package andreabresolin.kotlincoroutinesexamples.app.domain
+package andreabresolin.kotlincoroutinesexamples.app.coroutines
 
-import kotlinx.coroutines.experimental.CompletableDeferred
 import kotlinx.coroutines.experimental.CoroutineScope
 import kotlinx.coroutines.experimental.Deferred
-import kotlinx.coroutines.experimental.runBlocking
 
-abstract class BaseUseCase {
+interface AsyncTasksManager {
 
-    protected suspend fun <T> async(block: suspend CoroutineScope.() -> T): Deferred<T> {
-        return CompletableDeferred(runBlocking { block() })
-    }
+    suspend fun <T> async(block: suspend CoroutineScope.() -> T): Deferred<T>
 
-    protected suspend fun <T> asyncAwait(block: suspend CoroutineScope.() -> T): T {
-        return async(block).await()
-    }
+    suspend fun <T> asyncAwait(block: suspend CoroutineScope.() -> T): T
 
-    protected fun cancelAllAsync() {
-        // Nothing to do
-    }
+    fun cancelAllAsync()
 
-    open fun cleanup() {
-        cancelAllAsync()
-    }
+    fun cleanup()
 }

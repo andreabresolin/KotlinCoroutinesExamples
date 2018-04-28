@@ -16,6 +16,7 @@
 
 package andreabresolin.kotlincoroutinesexamples.forecast.domain
 
+import andreabresolin.kotlincoroutinesexamples.app.coroutines.AsyncTasksManager
 import andreabresolin.kotlincoroutinesexamples.app.domain.BaseUseCase
 import andreabresolin.kotlincoroutinesexamples.app.model.DayForecast
 import andreabresolin.kotlincoroutinesexamples.app.network.model.ThreeHoursWeatherForecast
@@ -29,7 +30,7 @@ import kotlin.math.max
 import kotlin.math.min
 
 class GetForecastUseCase
-@Inject constructor(private val weatherRepository: WeatherRepository) : BaseUseCase() {
+@Inject constructor(asyncTasksManager: AsyncTasksManager, private val weatherRepository: WeatherRepository) : BaseUseCase(asyncTasksManager) {
 
     class GetForecastException constructor(val cityAndCountry: String) : RuntimeException()
 

@@ -16,6 +16,7 @@
 
 package andreabresolin.kotlincoroutinesexamples.home.domain
 
+import andreabresolin.kotlincoroutinesexamples.app.coroutines.AsyncTasksManager
 import andreabresolin.kotlincoroutinesexamples.app.domain.BaseUseCase
 import andreabresolin.kotlincoroutinesexamples.app.network.model.CurrentWeather
 import andreabresolin.kotlincoroutinesexamples.app.repository.WeatherRepository
@@ -23,7 +24,7 @@ import kotlinx.coroutines.experimental.Deferred
 import javax.inject.Inject
 
 class GetAverageTemperatureUseCase
-@Inject constructor(private val weatherRepository: WeatherRepository) : BaseUseCase() {
+@Inject constructor(asyncTasksManager: AsyncTasksManager, private val weatherRepository: WeatherRepository) : BaseUseCase(asyncTasksManager) {
 
     suspend fun execute(citiesAndCountries: List<String>): Double {
         return citiesAndCountries

@@ -26,7 +26,7 @@ import kotlin.coroutines.experimental.Continuation
 import kotlin.coroutines.experimental.suspendCoroutine
 
 abstract class BasePresenterImpl<View>
-constructor(private val coroutinesManager: CoroutinesManager) : ViewModel(), CoroutinesManager by coroutinesManager, BasePresenter<View> {
+constructor(coroutinesManager: CoroutinesManager) : ViewModel(), CoroutinesManager by coroutinesManager, BasePresenter<View> {
 
     private var viewInstance: View? = null
     private var viewLifecycle: Lifecycle? = null
