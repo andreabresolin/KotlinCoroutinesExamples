@@ -16,6 +16,8 @@
 
 package andreabresolin.kotlincoroutinesexamples.home.presenter
 
+import andreabresolin.kotlincoroutinesexamples.app.coroutines.CoroutinesManager
+import andreabresolin.kotlincoroutinesexamples.app.coroutines.TestCoroutinesManager
 import andreabresolin.kotlincoroutinesexamples.app.model.City
 import andreabresolin.kotlincoroutinesexamples.app.model.LoadedCityWeather
 import andreabresolin.kotlincoroutinesexamples.app.model.UnknownCityWeather
@@ -27,6 +29,7 @@ import andreabresolin.kotlincoroutinesexamples.home.view.HomeView
 import andreabresolin.kotlincoroutinesexamples.home.view.HomeView.ErrorDialogResponse
 import andreabresolin.kotlincoroutinesexamples.home.view.HomeView.ErrorDialogResponse.CANCEL
 import andreabresolin.kotlincoroutinesexamples.home.view.HomeView.ErrorDialogResponse.RETRY
+import andreabresolin.kotlincoroutinesexamples.testutils.BaseTest
 import andreabresolin.kotlincoroutinesexamples.testutils.KotlinTestUtils.Companion.eqString
 import andreabresolin.kotlincoroutinesexamples.testutils.KotlinTestUtils.Companion.mockContinuation
 import andreabresolin.kotlincoroutinesexamples.testutils.KotlinTestUtils.Companion.stubStickyContinuation
@@ -40,11 +43,14 @@ import org.junit.runner.RunWith
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Mockito.*
+import org.mockito.Spy
 import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
-class HomePresenterImplTest {
+class HomePresenterImplTest : BaseTest() {
 
+    @Spy
+    private var testCoroutinesManager: CoroutinesManager = TestCoroutinesManager()
     @Mock
     private lateinit var mockView: HomeView
     @Mock

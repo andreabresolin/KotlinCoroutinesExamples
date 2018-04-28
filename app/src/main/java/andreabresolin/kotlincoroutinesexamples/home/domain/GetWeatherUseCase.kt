@@ -49,11 +49,9 @@ class GetWeatherUseCase
                 }
     }
 
-    private suspend fun getCityWeather(cityAndCountry: String): Deferred<CurrentWeather?> {
-        return async {
-            simulateSlowNetwork()
-            weatherRepository.getCurrentWeather(cityAndCountry)
-        }
+    private suspend fun getCityWeather(cityAndCountry: String): Deferred<CurrentWeather?> = async {
+        simulateSlowNetwork()
+        weatherRepository.getCurrentWeather(cityAndCountry)
     }
 
     private suspend fun simulateSlowNetwork() {

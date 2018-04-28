@@ -14,16 +14,15 @@
  *  limitations under the License.
  */
 
-package andreabresolin.kotlincoroutinesexamples.forecast.di
+package andreabresolin.kotlincoroutinesexamples.testutils
 
-import andreabresolin.kotlincoroutinesexamples.app.di.scopes.PerScreen
-import andreabresolin.kotlincoroutinesexamples.forecast.presenter.ForecastPresenterImpl
-import andreabresolin.kotlincoroutinesexamples.forecast.view.ForecastActivity
-import dagger.Subcomponent
+import org.junit.Rule
+import org.mockito.junit.MockitoJUnit
+import org.mockito.junit.MockitoRule
 
-@PerScreen
-@Subcomponent(modules = [(ForecastModule::class)])
-interface ForecastComponent {
-    fun inject(forecastPresenter: ForecastPresenterImpl)
-    fun inject(forecastActivity: ForecastActivity)
+open class BaseTest {
+
+    @Rule
+    @JvmField
+    val rule: MockitoRule = MockitoJUnit.rule()
 }

@@ -32,8 +32,8 @@ class GetAverageTemperatureUseCase
                 .average()
     }
 
-    private suspend fun getCityWeather(cityAndCountry: String): Deferred<CurrentWeather?> {
-        return async { weatherRepository.getCurrentWeather(cityAndCountry) }
+    private suspend fun getCityWeather(cityAndCountry: String): Deferred<CurrentWeather?> = async {
+        weatherRepository.getCurrentWeather(cityAndCountry)
     }
 
     private fun getCityTemperature(weather: CurrentWeather?): Double {

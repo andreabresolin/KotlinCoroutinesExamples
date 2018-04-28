@@ -17,14 +17,12 @@
 package andreabresolin.kotlincoroutinesexamples.forecast.view
 
 import andreabresolin.kotlincoroutinesexamples.app.presenter.StickyContinuation
-import andreabresolin.kotlincoroutinesexamples.forecast.di.ForecastComponent
 
 interface ForecastView {
     enum class ErrorDialogResponse {
         RETRY, CANCEL
     }
 
-    fun injectDependencies(forecastComponent: ForecastComponent)
     fun displayLoadingState()
     fun displayContentState()
     fun displayErrorState()

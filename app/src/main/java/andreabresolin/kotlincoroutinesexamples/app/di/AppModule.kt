@@ -16,6 +16,8 @@
 
 package andreabresolin.kotlincoroutinesexamples.app.di
 
+import andreabresolin.kotlincoroutinesexamples.app.coroutines.CoroutinesManager
+import andreabresolin.kotlincoroutinesexamples.app.coroutines.DefaultCoroutinesManager
 import andreabresolin.kotlincoroutinesexamples.app.di.scopes.PerApplication
 import andreabresolin.kotlincoroutinesexamples.app.repository.WeatherRepository
 import andreabresolin.kotlincoroutinesexamples.app.repository.WeatherRepositoryImpl
@@ -30,5 +32,10 @@ class AppModule constructor(private val application: Application) {
     @PerApplication
     internal fun provideWeatherRepository(repository: WeatherRepositoryImpl): WeatherRepository {
         return repository
+    }
+
+    @Provides
+    internal fun provideCoroutinesManager(): CoroutinesManager {
+        return DefaultCoroutinesManager()
     }
 }

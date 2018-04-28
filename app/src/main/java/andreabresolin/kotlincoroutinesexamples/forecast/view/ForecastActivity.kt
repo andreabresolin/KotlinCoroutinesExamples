@@ -17,11 +17,13 @@
 package andreabresolin.kotlincoroutinesexamples.forecast.view
 
 import andreabresolin.kotlincoroutinesexamples.R
+import andreabresolin.kotlincoroutinesexamples.app.App
 import andreabresolin.kotlincoroutinesexamples.app.model.City
 import andreabresolin.kotlincoroutinesexamples.app.presenter.StickyContinuation
-import andreabresolin.kotlincoroutinesexamples.forecast.di.ForecastComponent
+import andreabresolin.kotlincoroutinesexamples.forecast.di.ForecastModule
 import andreabresolin.kotlincoroutinesexamples.forecast.presenter.ForecastPresenter
 import andreabresolin.kotlincoroutinesexamples.forecast.presenter.ForecastPresenterImpl
+import andreabresolin.kotlincoroutinesexamples.forecast.presenter.ForecastPresenterFactory
 import andreabresolin.kotlincoroutinesexamples.forecast.view.ForecastView.ErrorDialogResponse
 import andreabresolin.kotlincoroutinesexamples.forecast.view.ForecastView.ErrorDialogResponse.CANCEL
 import andreabresolin.kotlincoroutinesexamples.forecast.view.ForecastView.ErrorDialogResponse.RETRY
@@ -33,6 +35,7 @@ import android.os.Bundle
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_forecast.*
+import javax.inject.Inject
 
 class ForecastActivity : AppCompatActivity(), ForecastView {
 
@@ -52,6 +55,9 @@ class ForecastActivity : AppCompatActivity(), ForecastView {
         }
     }
 
+    @Inject
+    internal lateinit var presenterFactory: ForecastPresenterFactory
+
     private lateinit var presenter: ForecastPresenter<ForecastView>
     private val openDialogs: MutableList<AlertDialog> = mutableListOf()
 
@@ -59,8 +65,9 @@ class ForecastActivity : AppCompatActivity(), ForecastView {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_forecast)
 
-        setupPresenter()
-        setupDaysForecastList()
+        injectDependencies()
+        setUpPresenter()
+        setUpDaysForecastList()
 
         intent.getParcelableExtra<City>(CITY_EXTRA)?.let {
             title = getString(R.string.forecast_activity_title, it.cityName)
@@ -71,17 +78,17 @@ class ForecastActivity : AppCompatActivity(), ForecastView {
         }
     }
 
-    override fun injectDependencies(forecastComponent: ForecastComponent) {
-        forecastComponent.inject(this)
+    private fun injectDependencies() {
+        App.get().getAppComponent()?.plus(ForecastModule())?.inject(this)
     }
 
-    private fun setupPresenter() {
-        presenter = ViewModelProviders.of(this).get(ForecastPresenterImpl::class.java)
+    private fun setUpPresenter() {
+        presenter = ViewModelProviders.of(this, presenterFactory).get(ForecastPresenterImpl::class.java)
         presenter.attachView(this, lifecycle)
         lifecycle.addObserver(presenter)
     }
 
-    private fun setupDaysForecastList() {
+    private fun setUpDaysForecastList() {
         daysForecastList.adapter = DaysForecastListAdapter(this, presenter.forecasts)
     }
 

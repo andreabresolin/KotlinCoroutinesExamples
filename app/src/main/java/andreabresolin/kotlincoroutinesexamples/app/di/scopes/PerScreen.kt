@@ -14,16 +14,11 @@
  *  limitations under the License.
  */
 
-package andreabresolin.kotlincoroutinesexamples.forecast.di
+package andreabresolin.kotlincoroutinesexamples.app.di.scopes
 
-import andreabresolin.kotlincoroutinesexamples.app.di.scopes.PerScreen
-import andreabresolin.kotlincoroutinesexamples.forecast.presenter.ForecastPresenterImpl
-import andreabresolin.kotlincoroutinesexamples.forecast.view.ForecastActivity
-import dagger.Subcomponent
+import javax.inject.Scope
+import kotlin.annotation.AnnotationRetention.RUNTIME
 
-@PerScreen
-@Subcomponent(modules = [(ForecastModule::class)])
-interface ForecastComponent {
-    fun inject(forecastPresenter: ForecastPresenterImpl)
-    fun inject(forecastActivity: ForecastActivity)
-}
+@Scope
+@Retention(RUNTIME)
+annotation class PerScreen
