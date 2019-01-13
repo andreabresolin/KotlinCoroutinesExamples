@@ -1,5 +1,5 @@
 /*
- *  Copyright 2018 Andrea Bresolin
+ *  Copyright 2018-2019 Andrea Bresolin
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import andreabresolin.kotlincoroutinesexamples.testutils.BaseTest
 import andreabresolin.kotlincoroutinesexamples.testutils.KotlinTestUtils.Companion.whenever
 import andreabresolin.kotlincoroutinesexamples.testutils.Stubs
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith

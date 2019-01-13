@@ -1,5 +1,5 @@
 /*
- *  Copyright 2018 Andrea Bresolin
+ *  Copyright 2018-2019 Andrea Bresolin
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,8 +23,8 @@ import andreabresolin.kotlincoroutinesexamples.app.model.CityWeather
 import andreabresolin.kotlincoroutinesexamples.app.model.LoadedCityWeather
 import andreabresolin.kotlincoroutinesexamples.app.network.model.CurrentWeather
 import andreabresolin.kotlincoroutinesexamples.app.repository.WeatherRepository
-import kotlinx.coroutines.experimental.Deferred
-import kotlinx.coroutines.experimental.delay
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.delay
 import java.util.*
 import javax.inject.Inject
 

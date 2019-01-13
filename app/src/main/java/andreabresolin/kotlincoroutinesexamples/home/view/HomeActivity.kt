@@ -1,5 +1,5 @@
 /*
- *  Copyright 2018 Andrea Bresolin
+ *  Copyright 2018-2019 Andrea Bresolin
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,8 +23,8 @@ import andreabresolin.kotlincoroutinesexamples.app.presenter.StickyContinuation
 import andreabresolin.kotlincoroutinesexamples.forecast.view.ForecastActivity
 import andreabresolin.kotlincoroutinesexamples.home.di.HomeModule
 import andreabresolin.kotlincoroutinesexamples.home.presenter.HomePresenter
-import andreabresolin.kotlincoroutinesexamples.home.presenter.HomePresenterImpl
 import andreabresolin.kotlincoroutinesexamples.home.presenter.HomePresenterFactory
+import andreabresolin.kotlincoroutinesexamples.home.presenter.HomePresenterImpl
 import andreabresolin.kotlincoroutinesexamples.home.view.HomeView.ErrorDialogResponse
 import android.arch.lifecycle.ViewModelProviders
 import android.content.DialogInterface
@@ -33,6 +33,7 @@ import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_home.*
 import javax.inject.Inject
+import kotlin.coroutines.resume
 
 class HomeActivity : AppCompatActivity(), HomeView {
 
@@ -98,11 +99,11 @@ class HomeActivity : AppCompatActivity(), HomeView {
     }
 
     override fun updateAllCities() {
-        citiesWeatherList.adapter.notifyDataSetChanged()
+        citiesWeatherList.adapter?.notifyDataSetChanged()
     }
 
     override fun updateCity(cityIndex: Int) {
-        citiesWeatherList.adapter.notifyItemChanged(cityIndex)
+        citiesWeatherList.adapter?.notifyItemChanged(cityIndex)
     }
 
     override fun displayAverageTemperature(temperature: Double) {

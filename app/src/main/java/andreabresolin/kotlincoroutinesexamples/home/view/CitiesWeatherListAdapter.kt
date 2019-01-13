@@ -1,5 +1,5 @@
 /*
- *  Copyright 2018 Andrea Bresolin
+ *  Copyright 2018-2019 Andrea Bresolin
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -69,7 +69,7 @@ constructor(private val context: Context,
                     view.temperature = view.context.getString(R.string.temperature_string, cityWeather.temperature)
 
                     if (cityWeather.icon != null) {
-                        view.weatherIconUrl = "http://openweathermap.org/img/w/${cityWeather.icon}.png"
+                        view.weatherIconUrl = "https://openweathermap.org/img/w/${cityWeather.icon}.png"
                     } else {
                         view.weatherIconUrl = null
                     }

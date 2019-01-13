@@ -1,5 +1,5 @@
 /*
- *  Copyright 2018 Andrea Bresolin
+ *  Copyright 2018-2019 Andrea Bresolin
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import andreabresolin.kotlincoroutinesexamples.app.coroutines.AsyncTasksManager
 import andreabresolin.kotlincoroutinesexamples.app.domain.BaseUseCase
 import andreabresolin.kotlincoroutinesexamples.app.network.model.CurrentWeather
 import andreabresolin.kotlincoroutinesexamples.app.repository.WeatherRepository
-import kotlinx.coroutines.experimental.Deferred
+import kotlinx.coroutines.Deferred
 import javax.inject.Inject
 
 class GetAverageTemperatureUseCase

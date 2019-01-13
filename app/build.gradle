@@ -3,29 +3,23 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 
-kotlin {
-    experimental {
-        coroutines 'enable'
-    }
-}
-
 androidExtensions {
     experimental = true
 }
 
 android {
-    compileSdkVersion 27
-    buildToolsVersion "27.0.3"
+    compileSdkVersion 28
+    buildToolsVersion "28.0.3"
     defaultConfig {
         applicationId "andreabresolin.kotlincoroutinesexamples"
         minSdkVersion 23
-        targetSdkVersion 27
+        targetSdkVersion 28
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         // Additional properties specific to the build
-        buildConfigField "String", "WEATHER_API_ENDPOINT", "\"http://api.openweathermap.org/\""
+        buildConfigField "String", "WEATHER_API_ENDPOINT", "\"https://api.openweathermap.org/\""
         buildConfigField "String", "WEATHER_API_APP_ID", "\"f04391f2a7b156421675d08ac24dc908\""
     }
     buildTypes {
@@ -37,19 +31,19 @@ android {
 }
 
 ext {
-    support_library_version = '27.1.1'
-    constraint_layout_version = '1.1.0'
+    support_library_version = '28.0.0'
+    constraint_layout_version = '1.1.3'
     espresso_version = '3.0.1'
-    dagger_version = '2.14.1'
+    dagger_version = '2.15'
     retrofit_version = '2.3.0'
     okhttp_version = '3.9.1'
-    kotlin_coroutines_version = '0.22.5'
-    mockito_version = '2.18.3'
+    kotlin_coroutines_version = '1.1.0'
+    mockito_version = '2.23.4'
     truth_version = '0.39'
     architecture_lifecycle_compiler_version = '1.1.0'
     architecture_lifecycle_extensions_version = '1.1.1'
     architecture_core_testing_version = '1.1.0'
-    glide_version = '4.6.1'
+    glide_version = '4.8.0'
 }
 
 dependencies {
@@ -99,5 +93,6 @@ dependencies {
     // Testing
     testImplementation 'junit:junit:4.12'
     testImplementation "org.mockito:mockito-core:$mockito_version"
+    testImplementation "org.mockito:mockito-inline:$mockito_version"
     testImplementation "com.google.truth:truth:$truth_version"
 }

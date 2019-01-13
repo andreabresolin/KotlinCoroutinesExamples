@@ -1,5 +1,5 @@
 /*
- *  Copyright 2018 Andrea Bresolin
+ *  Copyright 2018-2019 Andrea Bresolin
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,7 +16,9 @@
 
 package andreabresolin.kotlincoroutinesexamples.app.presenter
 
-import kotlin.coroutines.experimental.Continuation
+import kotlin.coroutines.Continuation
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 class StickyContinuation<ReturnType>
 constructor(
@@ -31,15 +33,15 @@ constructor(
     val resumeException: Throwable?
         get() = _resumeException
 
-    override fun resume(value: ReturnType) {
-        _resumeValue = value
-        presenter.removeStickyContinuation(this)
-        continuation.resume(value)
-    }
-
-    override fun resumeWithException(exception: Throwable) {
-        _resumeException = exception
-        presenter.removeStickyContinuation(this)
-        continuation.resumeWithException(exception)
+    override fun resumeWith(result: Result<ReturnType>) {
+        if (result.isSuccess) {
+            _resumeValue = result.getOrNull()
+            presenter.removeStickyContinuation(this)
+            _resumeValue?.let { continuation.resume(it) }
+        } else if (result.isFailure) {
+            _resumeException = result.exceptionOrNull()
+            presenter.removeStickyContinuation(this)
+            _resumeException?.let { continuation.resumeWithException(it) }
+        }
     }
 }

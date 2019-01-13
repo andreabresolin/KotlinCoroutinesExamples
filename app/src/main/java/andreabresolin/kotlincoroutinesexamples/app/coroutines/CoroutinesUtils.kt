@@ -1,5 +1,5 @@
 /*
- *  Copyright 2017 Andrea Bresolin
+ *  Copyright 2017-2019 Andrea Bresolin
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 package andreabresolin.kotlincoroutinesexamples.app.coroutines
 
-import kotlinx.coroutines.experimental.CancellationException
-import kotlinx.coroutines.experimental.CoroutineScope
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
 
 interface CoroutinesUtils {
     companion object {

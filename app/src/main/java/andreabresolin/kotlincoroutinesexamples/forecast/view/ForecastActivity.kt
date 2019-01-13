@@ -1,5 +1,5 @@
 /*
- *  Copyright 2018 Andrea Bresolin
+ *  Copyright 2018-2019 Andrea Bresolin
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,8 +22,8 @@ import andreabresolin.kotlincoroutinesexamples.app.model.City
 import andreabresolin.kotlincoroutinesexamples.app.presenter.StickyContinuation
 import andreabresolin.kotlincoroutinesexamples.forecast.di.ForecastModule
 import andreabresolin.kotlincoroutinesexamples.forecast.presenter.ForecastPresenter
-import andreabresolin.kotlincoroutinesexamples.forecast.presenter.ForecastPresenterImpl
 import andreabresolin.kotlincoroutinesexamples.forecast.presenter.ForecastPresenterFactory
+import andreabresolin.kotlincoroutinesexamples.forecast.presenter.ForecastPresenterImpl
 import andreabresolin.kotlincoroutinesexamples.forecast.view.ForecastView.ErrorDialogResponse
 import andreabresolin.kotlincoroutinesexamples.forecast.view.ForecastView.ErrorDialogResponse.CANCEL
 import andreabresolin.kotlincoroutinesexamples.forecast.view.ForecastView.ErrorDialogResponse.RETRY
@@ -36,6 +36,7 @@ import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_forecast.*
 import javax.inject.Inject
+import kotlin.coroutines.resume
 
 class ForecastActivity : AppCompatActivity(), ForecastView {
 
@@ -141,7 +142,7 @@ class ForecastActivity : AppCompatActivity(), ForecastView {
     }
 
     override fun updateAllForecasts() {
-        daysForecastList.adapter.notifyDataSetChanged()
+        daysForecastList.adapter?.notifyDataSetChanged()
     }
 
     override fun displayLoadForecastsErrorWithRetry(

@@ -1,5 +1,5 @@
 /*
- *  Copyright 2018 Andrea Bresolin
+ *  Copyright 2018-2019 Andrea Bresolin
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,19 +17,23 @@
 package andreabresolin.kotlincoroutinesexamples.app.coroutines
 
 import android.support.annotation.CallSuper
-import kotlinx.coroutines.experimental.CommonPool
-import kotlinx.coroutines.experimental.CoroutineScope
-import kotlinx.coroutines.experimental.Deferred
-import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlin.coroutines.CoroutineContext
 
-open class DefaultAsyncTasksManager : AsyncTasksManager {
+open class DefaultAsyncTasksManager : AsyncTasksManager, CoroutineScope {
+
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main
 
     protected val deferredObjects: MutableList<Deferred<*>> = mutableListOf()
 
     @CallSuper
     @Synchronized
     override suspend fun <T> async(block: suspend CoroutineScope.() -> T): Deferred<T> {
-        val deferred: Deferred<T> = async(CommonPool) { block() }
+        val deferred: Deferred<T> = async(Dispatchers.Default) { block() }
         deferredObjects.add(deferred)
         deferred.invokeOnCompletion { deferredObjects.remove(deferred) }
         return deferred

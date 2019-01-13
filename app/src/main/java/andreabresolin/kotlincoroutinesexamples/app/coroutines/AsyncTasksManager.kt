@@ -1,5 +1,5 @@
 /*
- *  Copyright 2018 Andrea Bresolin
+ *  Copyright 2018-2019 Andrea Bresolin
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 package andreabresolin.kotlincoroutinesexamples.app.coroutines
 
-import kotlinx.coroutines.experimental.CoroutineScope
-import kotlinx.coroutines.experimental.Deferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
 
 interface AsyncTasksManager {
 

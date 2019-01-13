@@ -1,5 +1,5 @@
 /*
- *  Copyright 2018 Andrea Bresolin
+ *  Copyright 2018-2019 Andrea Bresolin
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ package andreabresolin.kotlincoroutinesexamples.testutils
 
 import andreabresolin.kotlincoroutinesexamples.app.presenter.StickyContinuation
 import org.mockito.ArgumentMatcher
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 class StickyContinuationArgumentMatcher<ReturnType>
 constructor(private val stubStickyContinuation: StickyContinuation<ReturnType>) : ArgumentMatcher<StickyContinuation<ReturnType>> {

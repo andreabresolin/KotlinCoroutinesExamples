@@ -1,5 +1,5 @@
 /*
- *  Copyright 2018 Andrea Bresolin
+ *  Copyright 2018-2019 Andrea Bresolin
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,19 +19,22 @@ package andreabresolin.kotlincoroutinesexamples.app.coroutines
 import andreabresolin.kotlincoroutinesexamples.app.coroutines.CoroutinesUtils.Companion.tryCatch
 import andreabresolin.kotlincoroutinesexamples.app.coroutines.CoroutinesUtils.Companion.tryCatchFinally
 import andreabresolin.kotlincoroutinesexamples.app.coroutines.CoroutinesUtils.Companion.tryFinally
-import android.support.annotation.CallSuper
-import kotlinx.coroutines.experimental.CoroutineScope
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlin.coroutines.CoroutineContext
 
-open class DefaultCoroutinesManager : CoroutinesManager {
+open class DefaultCoroutinesManager : CoroutinesManager, CoroutineScope {
 
     protected val coroutinesJobs: MutableList<Job> = mutableListOf()
 
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main
+
     @Synchronized
     override fun launchOnUI(block: suspend CoroutineScope.() -> Unit) {
-        val job: Job = launch(UI) { block() }
+        val job: Job = launch(Dispatchers.Main) { block() }
         coroutinesJobs.add(job)
         job.invokeOnCompletion { coroutinesJobs.remove(job) }
     }

@@ -1,5 +1,5 @@
 /*
- *  Copyright 2018 Andrea Bresolin
+ *  Copyright 2018-2019 Andrea Bresolin
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@ constructor(private val context: Context,
             }
 
             if (forecast.icon != null) {
-                view.weatherIconUrl = "http://openweathermap.org/img/w/${forecast.icon}.png"
+                view.weatherIconUrl = "https://openweathermap.org/img/w/${forecast.icon}.png"
             } else {
                 view.weatherIconUrl = null
             }
