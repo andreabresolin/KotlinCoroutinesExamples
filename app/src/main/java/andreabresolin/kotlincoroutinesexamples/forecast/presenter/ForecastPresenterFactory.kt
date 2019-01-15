@@ -1,5 +1,5 @@
 /*
- *  Copyright 2018 Andrea Bresolin
+ *  Copyright 2018-2019 Andrea Bresolin
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,15 +16,20 @@
 
 package andreabresolin.kotlincoroutinesexamples.forecast.presenter
 
-import andreabresolin.kotlincoroutinesexamples.app.coroutines.CoroutinesManager
+import andreabresolin.kotlincoroutinesexamples.app.presenter.BasePresenter
+import andreabresolin.kotlincoroutinesexamples.forecast.domain.GetForecastUseCase
+import andreabresolin.kotlincoroutinesexamples.forecast.view.ForecastView
 import android.arch.lifecycle.ViewModel
 import android.arch.lifecycle.ViewModelProvider
 import javax.inject.Inject
 
 class ForecastPresenterFactory
-@Inject constructor(private val coroutinesManager: CoroutinesManager) : ViewModelProvider.Factory {
+@Inject constructor(private val basePresenter: BasePresenter<ForecastView>,
+                    private val getForecastUseCase: GetForecastUseCase) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-        return ForecastPresenterImpl(coroutinesManager) as T
+        return ForecastPresenterImpl(
+                basePresenter,
+                getForecastUseCase) as T
     }
 }

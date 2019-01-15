@@ -1,5 +1,5 @@
 /*
- *  Copyright 2018 Andrea Bresolin
+ *  Copyright 2018-2019 Andrea Bresolin
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,37 +17,40 @@
 package andreabresolin.kotlincoroutinesexamples.forecast.presenter
 
 import andreabresolin.kotlincoroutinesexamples.app.App
-import andreabresolin.kotlincoroutinesexamples.app.coroutines.CoroutinesManager
 import andreabresolin.kotlincoroutinesexamples.app.model.City
 import andreabresolin.kotlincoroutinesexamples.app.model.DayForecast
-import andreabresolin.kotlincoroutinesexamples.app.presenter.BasePresenterImpl
+import andreabresolin.kotlincoroutinesexamples.app.presenter.BasePresenter
 import andreabresolin.kotlincoroutinesexamples.forecast.di.ForecastModule
 import andreabresolin.kotlincoroutinesexamples.forecast.domain.GetForecastUseCase
 import andreabresolin.kotlincoroutinesexamples.forecast.domain.GetForecastUseCase.GetForecastException
 import andreabresolin.kotlincoroutinesexamples.forecast.view.ForecastView
 import andreabresolin.kotlincoroutinesexamples.forecast.view.ForecastView.ErrorDialogResponse
 import andreabresolin.kotlincoroutinesexamples.forecast.view.ForecastView.ErrorDialogResponse.RETRY
-import javax.inject.Inject
+import android.arch.lifecycle.LifecycleObserver
+import android.arch.lifecycle.ViewModel
 
 class ForecastPresenterImpl
-constructor(coroutinesManager: CoroutinesManager) : BasePresenterImpl<ForecastView>(coroutinesManager), ForecastPresenter<ForecastView> {
-
-    @Inject
-    internal lateinit var getForecastUseCase: GetForecastUseCase
+constructor(private val basePresenter: BasePresenter<ForecastView>,
+            private val getForecastUseCase: GetForecastUseCase) : ViewModel(),
+        BasePresenter<ForecastView> by basePresenter, ForecastPresenter<ForecastView> {
 
     private val daysForecast: MutableList<DayForecast> = mutableListOf()
 
     init {
-        injectDependencies()
+        injectDependencies(this::onInjectDependencies)
     }
 
-    override fun onInjectDependencies() {
+    private fun onInjectDependencies() {
         App.get().getAppComponent()?.plus(ForecastModule())?.inject(this)
+    }
+
+    override fun getLifecycleObserver(): LifecycleObserver {
+        return basePresenter
     }
 
     override fun cleanup() {
         getForecastUseCase.cleanup()
-        super.cleanup()
+        basePresenter.cleanup()
     }
 
     override val forecasts: List<DayForecast>

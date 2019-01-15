@@ -1,5 +1,5 @@
 /*
- *  Copyright 2018 Andrea Bresolin
+ *  Copyright 2018-2019 Andrea Bresolin
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,11 +16,36 @@
 
 package andreabresolin.kotlincoroutinesexamples.app.presenter
 
+import andreabresolin.kotlincoroutinesexamples.app.coroutines.CoroutinesManager
 import android.arch.lifecycle.Lifecycle
 import android.arch.lifecycle.LifecycleObserver
+import kotlin.coroutines.Continuation
 
-interface BasePresenter<View> : LifecycleObserver {
+interface BasePresenter<View> : CoroutinesManager, LifecycleObserver {
+    fun injectDependencies(dependenciesInjectionBlock: () -> Unit)
+    suspend fun view(): View
     fun attachView(view: View, viewLifecycle: Lifecycle)
+    fun onViewAttached(view: View)
+    suspend fun <ReturnType> executeStickyContinuation(stickyContinuationBlock: (Continuation<ReturnType>) -> Unit): ReturnType
     fun addStickyContinuation(continuation: StickyContinuation<*>, block: View.(StickyContinuation<*>) -> Unit)
     fun removeStickyContinuation(continuation: StickyContinuation<*>): Boolean
+    fun cleanup()
+
+    /**
+     * Executes the given block on the view. The block is executed again
+     * every time the view instance changes and the new view is resumed.
+     * This, for example, is useful for dialogs that need to be persisted
+     * across orientation changes.
+     *
+     * @param block code that has to be executed on the view
+     */
+    @Suppress("UNCHECKED_CAST")
+    suspend fun <ReturnType> View.stickySuspension(
+            block: View.(StickyContinuation<ReturnType>) -> Unit): ReturnType {
+        return this@BasePresenter.executeStickyContinuation { continuation ->
+            val stickyContinuation: StickyContinuation<ReturnType> = StickyContinuation(continuation, this@BasePresenter)
+            addStickyContinuation(stickyContinuation, block as View.(StickyContinuation<*>) -> Unit)
+            block(stickyContinuation)
+        }
+    }
 }

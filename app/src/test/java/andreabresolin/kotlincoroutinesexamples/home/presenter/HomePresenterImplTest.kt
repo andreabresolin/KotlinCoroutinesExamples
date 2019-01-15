@@ -21,7 +21,9 @@ import andreabresolin.kotlincoroutinesexamples.app.coroutines.TestCoroutinesMana
 import andreabresolin.kotlincoroutinesexamples.app.model.City
 import andreabresolin.kotlincoroutinesexamples.app.model.LoadedCityWeather
 import andreabresolin.kotlincoroutinesexamples.app.model.UnknownCityWeather
+import andreabresolin.kotlincoroutinesexamples.app.presenter.BasePresenter
 import andreabresolin.kotlincoroutinesexamples.app.presenter.StickyContinuation
+import andreabresolin.kotlincoroutinesexamples.app.presenter.TestBasePresenter
 import andreabresolin.kotlincoroutinesexamples.home.domain.GetAverageTemperatureUseCase
 import andreabresolin.kotlincoroutinesexamples.home.domain.GetWeatherUseCase
 import andreabresolin.kotlincoroutinesexamples.home.domain.GetWeatherUseCase.GetWeatherException
@@ -40,7 +42,6 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.mockito.Spy
@@ -52,6 +53,8 @@ class HomePresenterImplTest : BaseTest() {
 
     @Spy
     private var coroutinesManager: CoroutinesManager = TestCoroutinesManager()
+    @Spy
+    private var basePresenter: BasePresenter<HomeView> = TestBasePresenter(coroutinesManager)
     @Mock
     private lateinit var mockView: HomeView
     @Mock
@@ -59,11 +62,14 @@ class HomePresenterImplTest : BaseTest() {
     @Mock
     private lateinit var mockGetAverageTemperatureUseCase: GetAverageTemperatureUseCase
 
-    @InjectMocks
     private lateinit var subject: HomePresenterImpl
 
     @Before
     fun before() {
+        subject = HomePresenterImpl(
+                basePresenter,
+                mockGetWeatherUseCase,
+                mockGetAverageTemperatureUseCase)
         subject.attachView(mockView, mock(Lifecycle::class.java))
     }
 

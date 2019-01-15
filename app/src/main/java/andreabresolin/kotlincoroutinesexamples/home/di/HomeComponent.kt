@@ -1,5 +1,5 @@
 /*
- *  Copyright 2017 Andrea Bresolin
+ *  Copyright 2017-2019 Andrea Bresolin
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,13 +17,14 @@
 package andreabresolin.kotlincoroutinesexamples.home.di
 
 import andreabresolin.kotlincoroutinesexamples.app.di.scopes.PerScreen
-import andreabresolin.kotlincoroutinesexamples.home.presenter.HomePresenterImpl
+import andreabresolin.kotlincoroutinesexamples.home.presenter.HomePresenter
 import andreabresolin.kotlincoroutinesexamples.home.view.HomeActivity
+import andreabresolin.kotlincoroutinesexamples.home.view.HomeView
 import dagger.Subcomponent
 
 @PerScreen
 @Subcomponent(modules = [(HomeModule::class)])
 interface HomeComponent {
-    fun inject(homePresenter: HomePresenterImpl)
+    fun inject(homePresenter: HomePresenter<HomeView>)
     fun inject(homeActivity: HomeActivity)
 }

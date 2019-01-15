@@ -1,5 +1,5 @@
 /*
- *  Copyright 2018 Andrea Bresolin
+ *  Copyright 2018-2019 Andrea Bresolin
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,21 +19,19 @@ package andreabresolin.kotlincoroutinesexamples.app.presenter
 import andreabresolin.kotlincoroutinesexamples.app.coroutines.CoroutinesManager
 import andreabresolin.kotlincoroutinesexamples.testutils.KotlinTestUtils.Companion.mockContinuation
 import android.arch.lifecycle.Lifecycle
+import kotlin.coroutines.Continuation
 
-abstract class BasePresenterImpl<View>
+class TestBasePresenter<View>
 constructor(coroutinesManager: CoroutinesManager): CoroutinesManager by coroutinesManager, BasePresenter<View> {
 
     private var mockView: View? = null
+    private lateinit var currentStickyContinuation: StickyContinuation<*>
 
-    protected fun injectDependencies() {
+    override fun injectDependencies(dependenciesInjectionBlock: () -> Unit) {
         // Nothing to do
     }
 
-    open protected fun onInjectDependencies() {
-        // Nothing to do
-    }
-
-    protected suspend fun view(): View {
+    override suspend fun view(): View {
         return mockView!!
     }
 
@@ -41,13 +39,24 @@ constructor(coroutinesManager: CoroutinesManager): CoroutinesManager by coroutin
         mockView = view
     }
 
-    open protected fun onViewAttached(view: View) {
+    override fun onViewAttached(view: View) {
         // Nothing to do
+    }
+
+    override suspend fun <ReturnType> executeStickyContinuation(stickyContinuationBlock: (Continuation<ReturnType>) -> Unit): ReturnType {
+        stickyContinuationBlock(mockContinuation())
+
+        if (currentStickyContinuation.resumeException != null) {
+            throw currentStickyContinuation.resumeException as Throwable
+        }
+
+        @Suppress("UNCHECKED_CAST")
+        return currentStickyContinuation.resumeValue as ReturnType
     }
 
     override fun addStickyContinuation(continuation: StickyContinuation<*>,
                                        block: View.(StickyContinuation<*>) -> Unit) {
-        // Nothing to do
+        currentStickyContinuation = continuation
     }
 
     override fun removeStickyContinuation(continuation: StickyContinuation<*>): Boolean {
@@ -55,22 +64,7 @@ constructor(coroutinesManager: CoroutinesManager): CoroutinesManager by coroutin
         return true
     }
 
-    @Suppress("UNCHECKED_CAST")
-    suspend fun <ReturnType> View.stickySuspension(
-            block: View.(StickyContinuation<ReturnType>) -> Unit): ReturnType {
-        val stickyContinuation: StickyContinuation<ReturnType> =
-                StickyContinuation(mockContinuation(), this@BasePresenterImpl)
-
-        block(stickyContinuation)
-
-        if (stickyContinuation.resumeException != null) {
-            throw stickyContinuation.resumeException as Throwable
-        }
-
-        return stickyContinuation.resumeValue as ReturnType
-    }
-
-    open fun cleanup() {
+    override fun cleanup() {
         cancelAllCoroutines()
     }
 }

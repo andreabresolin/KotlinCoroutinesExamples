@@ -60,7 +60,7 @@ class HomeActivity : AppCompatActivity(), HomeView {
     private fun setUpPresenter() {
         presenter = ViewModelProviders.of(this, presenterFactory).get(HomePresenterImpl::class.java)
         presenter.attachView(this, lifecycle)
-        lifecycle.addObserver(presenter)
+        lifecycle.addObserver(presenter.getLifecycleObserver())
     }
 
     private fun setUpListeners() {

@@ -1,5 +1,5 @@
 /*
- *  Copyright 2018 Andrea Bresolin
+ *  Copyright 2018-2019 Andrea Bresolin
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,8 +16,20 @@
 
 package andreabresolin.kotlincoroutinesexamples.home.di
 
+import andreabresolin.kotlincoroutinesexamples.app.coroutines.CoroutinesManager
+import andreabresolin.kotlincoroutinesexamples.app.di.scopes.PerScreen
+import andreabresolin.kotlincoroutinesexamples.app.presenter.BasePresenter
+import andreabresolin.kotlincoroutinesexamples.app.presenter.DefaultBasePresenter
+import andreabresolin.kotlincoroutinesexamples.home.view.HomeView
 import dagger.Module
+import dagger.Provides
 
 @Module
-class HomeModule {
+class HomeModule() {
+
+    @Provides
+    @PerScreen
+    internal fun provideBasePresenter(coroutinesManager: CoroutinesManager): BasePresenter<HomeView> {
+        return DefaultBasePresenter(coroutinesManager)
+    }
 }

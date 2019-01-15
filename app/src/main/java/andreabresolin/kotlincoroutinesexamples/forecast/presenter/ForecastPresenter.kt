@@ -1,5 +1,5 @@
 /*
- *  Copyright 2018 Andrea Bresolin
+ *  Copyright 2018-2019 Andrea Bresolin
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,10 +18,13 @@ package andreabresolin.kotlincoroutinesexamples.forecast.presenter
 
 import andreabresolin.kotlincoroutinesexamples.app.model.City
 import andreabresolin.kotlincoroutinesexamples.app.model.DayForecast
-import andreabresolin.kotlincoroutinesexamples.app.presenter.BasePresenter
+import android.arch.lifecycle.Lifecycle
+import android.arch.lifecycle.LifecycleObserver
 
-interface ForecastPresenter<ViewInterface> : BasePresenter<ViewInterface> {
+interface ForecastPresenter<ViewInterface> {
     val forecasts: List<DayForecast>
 
+    fun attachView(view: ViewInterface, viewLifecycle: Lifecycle)
+    fun getLifecycleObserver(): LifecycleObserver
     fun loadForecasts(city: City)
 }

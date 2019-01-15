@@ -1,5 +1,5 @@
 /*
- *  Copyright 2018 Andrea Bresolin
+ *  Copyright 2018-2019 Andrea Bresolin
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,12 +17,11 @@
 package andreabresolin.kotlincoroutinesexamples.home.presenter
 
 import andreabresolin.kotlincoroutinesexamples.app.App
-import andreabresolin.kotlincoroutinesexamples.app.coroutines.CoroutinesManager
 import andreabresolin.kotlincoroutinesexamples.app.model.City
 import andreabresolin.kotlincoroutinesexamples.app.model.CityWeather
 import andreabresolin.kotlincoroutinesexamples.app.model.LoadingCityWeather
 import andreabresolin.kotlincoroutinesexamples.app.model.UnknownCityWeather
-import andreabresolin.kotlincoroutinesexamples.app.presenter.BasePresenterImpl
+import andreabresolin.kotlincoroutinesexamples.app.presenter.BasePresenter
 import andreabresolin.kotlincoroutinesexamples.home.di.HomeModule
 import andreabresolin.kotlincoroutinesexamples.home.domain.GetAverageTemperatureUseCase
 import andreabresolin.kotlincoroutinesexamples.home.domain.GetWeatherUseCase
@@ -31,10 +30,14 @@ import andreabresolin.kotlincoroutinesexamples.home.view.HomeView
 import andreabresolin.kotlincoroutinesexamples.home.view.HomeView.ErrorDialogResponse
 import andreabresolin.kotlincoroutinesexamples.home.view.HomeView.ErrorDialogResponse.CANCEL
 import andreabresolin.kotlincoroutinesexamples.home.view.HomeView.ErrorDialogResponse.RETRY
-import javax.inject.Inject
+import android.arch.lifecycle.LifecycleObserver
+import android.arch.lifecycle.ViewModel
 
 class HomePresenterImpl
-constructor(coroutinesManager: CoroutinesManager) : BasePresenterImpl<HomeView>(coroutinesManager), HomePresenter<HomeView> {
+constructor(private val basePresenter: BasePresenter<HomeView>,
+            private val getWeatherUseCase: GetWeatherUseCase,
+            private val getAverageTemperatureUseCase: GetAverageTemperatureUseCase) : ViewModel(),
+        BasePresenter<HomeView> by basePresenter, HomePresenter<HomeView> {
 
     companion object {
         private val CITIES: List<City> = listOf(
@@ -43,26 +46,30 @@ constructor(coroutinesManager: CoroutinesManager) : BasePresenterImpl<HomeView>(
                 City("New York", "us"))
     }
 
-    @Inject
-    internal lateinit var getWeatherUseCase: GetWeatherUseCase
-    @Inject
-    internal lateinit var getAverageTemperatureUseCase: GetAverageTemperatureUseCase
-
     private val citiesWeather: MutableList<CityWeather> = mutableListOf()
 
     init {
-        injectDependencies()
+        injectDependencies(this::onInjectDependencies)
         initCitiesWeather()
     }
 
-    override fun onInjectDependencies() {
+    private fun onInjectDependencies() {
         App.get().getAppComponent()?.plus(HomeModule())?.inject(this)
+    }
+
+    override fun getLifecycleObserver(): LifecycleObserver {
+        return basePresenter
     }
 
     override fun cleanup() {
         getWeatherUseCase.cleanup()
         getAverageTemperatureUseCase.cleanup()
-        super.cleanup()
+        basePresenter.cleanup()
+    }
+
+    override fun onCleared() {
+        cleanup()
+        super.onCleared()
     }
 
     override val weather: List<CityWeather>

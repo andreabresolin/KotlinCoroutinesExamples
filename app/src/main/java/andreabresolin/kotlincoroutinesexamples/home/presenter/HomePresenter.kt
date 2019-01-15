@@ -1,5 +1,5 @@
 /*
- *  Copyright 2018 Andrea Bresolin
+ *  Copyright 2018-2019 Andrea Bresolin
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,11 +17,14 @@
 package andreabresolin.kotlincoroutinesexamples.home.presenter
 
 import andreabresolin.kotlincoroutinesexamples.app.model.CityWeather
-import andreabresolin.kotlincoroutinesexamples.app.presenter.BasePresenter
+import android.arch.lifecycle.Lifecycle
+import android.arch.lifecycle.LifecycleObserver
 
-interface HomePresenter<ViewInterface> : BasePresenter<ViewInterface> {
+interface HomePresenter<ViewInterface> {
     val weather: List<CityWeather>
 
+    fun attachView(view: ViewInterface, viewLifecycle: Lifecycle)
+    fun getLifecycleObserver(): LifecycleObserver
     fun isWeatherLoaded(): Boolean
     fun getWeatherSequential()
     fun getWeatherParallel()

@@ -86,7 +86,7 @@ class ForecastActivity : AppCompatActivity(), ForecastView {
     private fun setUpPresenter() {
         presenter = ViewModelProviders.of(this, presenterFactory).get(ForecastPresenterImpl::class.java)
         presenter.attachView(this, lifecycle)
-        lifecycle.addObserver(presenter)
+        lifecycle.addObserver(presenter.getLifecycleObserver())
     }
 
     private fun setUpDaysForecastList() {

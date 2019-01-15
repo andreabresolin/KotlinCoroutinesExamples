@@ -19,15 +19,14 @@ package andreabresolin.kotlincoroutinesexamples.app.presenter
 import andreabresolin.kotlincoroutinesexamples.app.coroutines.CoroutinesManager
 import android.arch.lifecycle.Lifecycle
 import android.arch.lifecycle.OnLifecycleEvent
-import android.arch.lifecycle.ViewModel
 import android.support.annotation.CallSuper
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-abstract class BasePresenterImpl<View>
-constructor(coroutinesManager: CoroutinesManager) : ViewModel(), CoroutinesManager by coroutinesManager, BasePresenter<View> {
+class DefaultBasePresenter<View>
+constructor(coroutinesManager: CoroutinesManager) : CoroutinesManager by coroutinesManager, BasePresenter<View> {
 
     private var viewInstance: View? = null
     private var viewLifecycle: Lifecycle? = null
@@ -36,16 +35,12 @@ constructor(coroutinesManager: CoroutinesManager) : ViewModel(), CoroutinesManag
     private val stickyContinuations: MutableMap<StickyContinuation<*>, View.(StickyContinuation<*>) -> Unit> = mutableMapOf()
     private var mustRestoreStickyContinuations: Boolean = false
 
-    protected fun injectDependencies() {
-        onInjectDependencies()
-    }
-
-    open protected fun onInjectDependencies() {
-        // Nothing to do here. This is an event handled by the subclasses.
+    override fun injectDependencies(dependenciesInjectionBlock: () -> Unit) {
+        dependenciesInjectionBlock()
     }
 
     @Synchronized
-    protected suspend fun view(): View {
+    override suspend fun view(): View {
         if (isViewResumed.get()) {
             viewInstance?.let { return it }
         }
@@ -62,8 +57,8 @@ constructor(coroutinesManager: CoroutinesManager) : ViewModel(), CoroutinesManag
         onViewAttached(view)
     }
 
-    open protected fun onViewAttached(view: View) {
-        // Nothing to do here. This is an event handled by the subclasses.
+    override fun onViewAttached(view: View) {
+        // Nothing to do here. This is an event handled by the specific presenters.
     }
 
     @Synchronized
@@ -119,9 +114,8 @@ constructor(coroutinesManager: CoroutinesManager) : ViewModel(), CoroutinesManag
         mustRestoreStickyContinuations = true
     }
 
-    override fun onCleared() {
-        cleanup()
-        super.onCleared()
+    override suspend fun <ReturnType> executeStickyContinuation(stickyContinuationBlock: (Continuation<ReturnType>) -> Unit): ReturnType {
+        return suspendCoroutine { continuation -> stickyContinuationBlock(continuation) }
     }
 
     @Synchronized
@@ -135,27 +129,9 @@ constructor(coroutinesManager: CoroutinesManager) : ViewModel(), CoroutinesManag
         return stickyContinuations.remove(continuation) != null
     }
 
-    /**
-     * Executes the given block on the view. The block is executed again
-     * every time the view instance changes and the new view is resumed.
-     * This, for example, is useful for dialogs that need to be persisted
-     * across orientation changes.
-     *
-     * @param block code that has to be executed on the view
-     */
-    @Suppress("UNCHECKED_CAST")
-    suspend fun <ReturnType> View.stickySuspension(
-            block: View.(StickyContinuation<ReturnType>) -> Unit): ReturnType {
-        return suspendCoroutine { continuation ->
-            val stickyContinuation: StickyContinuation<ReturnType> = StickyContinuation(continuation, this@BasePresenterImpl)
-            addStickyContinuation(stickyContinuation, block as View.(StickyContinuation<*>) -> Unit)
-            block(stickyContinuation)
-        }
-    }
-
     @CallSuper
     @Synchronized
-    open fun cleanup() {
+    override fun cleanup() {
         cancelAllCoroutines()
     }
 }
